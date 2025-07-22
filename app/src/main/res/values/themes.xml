@@ -2,4 +2,9 @@
 <resources>
 
     <style name="Theme.FoodHub_App" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="SplashTheme" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="postSplashScreenTheme">@style/Theme.FoodHub_App</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/animated_icon</item>
+    </style>
 </resources>
