@@ -19,6 +19,7 @@ import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.foodhub_app.data.FoodApi
 import com.example.foodhub_app.ui.feature.auth.AuthScreen
+import com.example.foodhub_app.ui.feature.auth.signup.SignUpScreen
 import com.example.foodhub_app.ui.theme.FoodHub_AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -53,7 +54,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AuthScreen()
+            SignUpScreen()
         }
         if(::foodApi.isInitialized){
             Log.d("Jeet","Initialized")
