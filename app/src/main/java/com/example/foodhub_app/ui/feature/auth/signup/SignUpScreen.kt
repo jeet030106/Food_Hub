@@ -55,8 +55,8 @@ import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun SignUpScreen(viewModel: SignUpViewModel= hiltViewModel()){
-    val name=viewModel.name.collectAsStateWithLifecycle()
-    val mail=viewModel.mail.collectAsStateWithLifecycle()
+    val name=viewModel.name.collectAsStateWithLifecycle() // any change in the UI will reflect, so when typed in text box it
+    val mail=viewModel.mail.collectAsStateWithLifecycle()// collects the data from the viewmodel and then shows the value
     val passsword=viewModel.password.collectAsStateWithLifecycle()
     val errorMessage=remember{ mutableStateOf<String?>(null) }
     val loading= remember { mutableStateOf(false) }
@@ -131,7 +131,7 @@ fun SignUpScreen(viewModel: SignUpViewModel= hiltViewModel()){
                 Spacer(modifier = Modifier.size(32.dp))
                 FoodHubTextField(
                     value = mail.value,
-                    onValueChange ={viewModel.onMailChange(it)},
+                    onValueChange ={viewModel.onMailChange(it)}, // triggered when anythin is typed in the text box
                     label = {
                         Text(text = stringResource(id = R.string.mail),
                             color = Color.Gray)
