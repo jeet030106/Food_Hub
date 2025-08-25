@@ -29,7 +29,9 @@ import androidx.navigation.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.foodhub_app.data.FoodApi
+import com.example.foodhub_app.data.model.SignInRequest
 import com.example.foodhub_app.ui.feature.auth.AuthScreen
+import com.example.foodhub_app.ui.feature.auth.login.SignInScreen
 import com.example.foodhub_app.ui.feature.auth.signup.SignUpScreen
 import com.example.foodhub_app.ui.navigation.Auth
 import com.example.foodhub_app.ui.navigation.Home
@@ -104,9 +106,7 @@ class MainActivity : ComponentActivity() {
                     AuthScreen(navController)
                 }
                 composable<Login>{
-                    Box(modifier= Modifier.fillMaxSize().background(Color.Green)){
-
-                    }
+                    SignInScreen(navController)
                 }
                 composable<Home>{
                     Box(modifier= Modifier.fillMaxSize().background(Color.Red)){
