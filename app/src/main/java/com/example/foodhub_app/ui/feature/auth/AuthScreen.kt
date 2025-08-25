@@ -33,12 +33,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.foodhub_app.R
+import com.example.foodhub_app.ui.navigation.Login
+import com.example.foodhub_app.ui.navigation.SignUp
 import com.example.foodhub_app.ui.theme.GroupSocialIcons
 import com.example.foodhub_app.ui.theme.Orange
 
 @Composable
-fun AuthScreen(){
+fun AuthScreen(navController: NavController){
     val imageSize= remember {
         mutableStateOf(IntSize.Zero)
     }
@@ -113,7 +117,9 @@ fun AuthScreen(){
             }
             Spacer(modifier = Modifier.size(10.dp))
             Button(
-                onClick = { /*TODO*/ },
+                onClick = {
+                    navController.navigate(SignUp)
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Gray.copy(alpha = 0.5f)),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(32.dp),
@@ -122,7 +128,9 @@ fun AuthScreen(){
                 Text(text = stringResource(id = R.string.signIn), color = Color.White)
             }
             Spacer(modifier = Modifier.size(10.dp))
-            TextButton(onClick = { /*TODO*/ }) {
+            TextButton(onClick = {
+                navController.navigate(Login)
+            }) {
                 Text(text = stringResource(id = R.string.already_have_acc),
                     color = Color.White)
             }
@@ -134,5 +142,5 @@ fun AuthScreen(){
 @Preview(showBackground = true)
 @Composable
 fun View() {
-    AuthScreen()
+    AuthScreen(rememberNavController())
 }

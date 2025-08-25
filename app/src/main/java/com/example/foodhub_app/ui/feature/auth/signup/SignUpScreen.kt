@@ -9,6 +9,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -46,7 +47,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.foodhub_app.R
+import com.example.foodhub_app.ui.feature.auth.AuthScreen
+import com.example.foodhub_app.ui.navigation.Auth
+import com.example.foodhub_app.ui.navigation.Home
 import com.example.foodhub_app.ui.theme.FoodHubTextField
 import com.example.foodhub_app.ui.theme.GroupSocialIcons
 import com.example.foodhub_app.ui.theme.Orange
@@ -54,7 +60,7 @@ import kotlinx.coroutines.flow.collectLatest
 
 
 @Composable
-fun SignUpScreen(viewModel: SignUpViewModel= hiltViewModel()){
+fun SignUpScreen(navController: NavController,viewModel: SignUpViewModel= hiltViewModel()){
     val name=viewModel.name.collectAsStateWithLifecycle() // any change in the UI will reflect, so when typed in text box it
     val mail=viewModel.mail.collectAsStateWithLifecycle()// collects the data from the viewmodel and then shows the value
     val passsword=viewModel.password.collectAsStateWithLifecycle()
@@ -80,7 +86,11 @@ fun SignUpScreen(viewModel: SignUpViewModel= hiltViewModel()){
         viewModel.navigationEvent.collectLatest {
             when(it){
                 is SignUpViewModel.SignUpNavigation.NavigateToHome->{
-                    Toast.makeText(context,"Nav to Home", Toast.LENGTH_SHORT).show()
+                    navController.navigate(Home){
+                        popUpTo(Auth){
+                            inclusive=true
+                        }
+                    }
                 }
                 is SignUpViewModel.SignUpNavigation.NavigateToLogin->{
 
@@ -194,7 +204,11 @@ fun SignUpScreen(viewModel: SignUpViewModel= hiltViewModel()){
                 Text(
                     text = stringResource(id = R.string.already_have_acc),
                     color = Orange.copy(alpha = 0.8f),
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    modifier=Modifier
+                        .clickable{
+                            viewModel.onLoginChaged()
+                        }
                 )
                 Spacer(modifier = Modifier.size(48.dp))
                 GroupSocialIcons(
@@ -210,5 +224,5 @@ fun SignUpScreen(viewModel: SignUpViewModel= hiltViewModel()){
 @Preview(showBackground = true)
 @Composable
 fun Screen(){
-    SignUpScreen()
+    SignUpScreen(rememberNavController())
 }
