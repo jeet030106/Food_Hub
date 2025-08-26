@@ -84,7 +84,7 @@ fun GroupSocialIcons(color: Color, onFacebookClick: () -> Unit, onGoogleClick: (
 @Composable
 fun SocialButton(icon: Int, title: Int, onClick: () -> Unit) {
     Button(
-        onClick = { onClick },
+        onClick = { onClick() },
         colors = ButtonDefaults.buttonColors(containerColor = Color.White),
         modifier = Modifier.shadow(4.dp, shape = androidx.compose.foundation.shape.CircleShape)
     ) {

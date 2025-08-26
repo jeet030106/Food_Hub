@@ -200,10 +200,13 @@ fun SignInScreen(navController: NavController,viewModel: SignInViewModel= hiltVi
                         }
                 )
                 Spacer(modifier = Modifier.size(48.dp))
+                val context=LocalContext.current
                 GroupSocialIcons(
                     color = Color.Gray,
                     onFacebookClick = { /*TODO*/ },
-                    onGoogleClick = {}
+                    onGoogleClick = {
+                        viewModel.onGoogleClicked(context)
+                    }
                 )
                 Spacer(modifier = Modifier.size(16.dp))
             }

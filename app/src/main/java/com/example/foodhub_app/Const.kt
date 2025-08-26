@@ -1,0 +1,3 @@
+package com.example.foodhub_app
+
+val GoogleServiceClientId="731464732492-o8k8kevlnpvkcckhk2u4ooas9jq4v5jl.apps.googleusercontent.com"
