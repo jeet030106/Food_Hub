@@ -214,8 +214,7 @@ fun SignUpScreen(navController: NavController,viewModel: SignUpViewModel= hiltVi
                 Spacer(modifier = Modifier.size(48.dp))
                 GroupSocialIcons(
                     color = Color.Gray,
-                    onFacebookClick = { /*TODO*/ },
-                    onGoogleClick = {}
+                    viewModel = viewModel
                 )
                 Spacer(modifier = Modifier.size(16.dp))
             }

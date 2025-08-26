@@ -1,11 +1,16 @@
 package com.example.foodhub_app.ui.feature.auth.signup
 
+import android.content.Context
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.foodhub_app.data.FoodApi
 import com.example.foodhub_app.data.model.SignUpRequest
+import com.example.foodhub_app.ui.BaseAuthViewModel
+import com.example.foodhub_app.ui.feature.auth.login.SignInViewModel.SignInEvent
+import com.example.foodhub_app.ui.feature.auth.login.SignInViewModel.SignInNavigation
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -16,7 +21,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SignUpViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
+class SignUpViewModel @Inject constructor(override val foodApi: FoodApi): BaseAuthViewModel(foodApi) {
     private var _uiState= MutableStateFlow<SignUpEvent>(SignUpEvent.Nothing)
     val uiState=_uiState.asStateFlow()
 
@@ -62,6 +67,9 @@ class SignUpViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
            }
 
         }
+        fun onGoogleClicked(context: Context) {
+            initiateGoogleLogin(context as ComponentActivity)
+        }
 
 
 
@@ -73,7 +81,24 @@ class SignUpViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
             _navigationEvent.emit(SignUpNavigation.NavigateToLogin)
         }
     }
+    override fun loading() {
+        viewModelScope.launch {
+            _uiState.value=SignUpEvent.Loading
+        }
+    }
 
+    override fun success(token: String) {
+        viewModelScope.launch {
+            _uiState.value=SignUpEvent.Success
+            _navigationEvent.emit(SignUpNavigation.NavigateToHome)
+        }
+    }
+
+    override fun error(message: String) {
+        viewModelScope.launch {
+            _uiState.value=SignUpEvent.Error
+        }
+    }
     sealed class SignUpNavigation{
         object NavigateToLogin:SignUpNavigation()
         object NavigateToHome:SignUpNavigation()

@@ -2,6 +2,7 @@ package com.example.foodhub_app.ui.feature.auth.login
 
 import android.content.Context
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.credentials.CredentialManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +12,7 @@ import com.example.foodhub_app.data.auth.GoogleAuthUiProvider
 import com.example.foodhub_app.data.model.OAuthRequest
 import com.example.foodhub_app.data.model.SignInRequest
 import com.example.foodhub_app.data.model.SignUpRequest
+import com.example.foodhub_app.ui.BaseAuthViewModel
 import com.example.foodhub_app.ui.feature.auth.signup.SignUpViewModel
 import dagger.hilt.android.internal.Contexts
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,8 +25,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SignInViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
-    val googleAuthUiProvider= GoogleAuthUiProvider()
+class SignInViewModel @Inject constructor(override val foodApi: FoodApi): BaseAuthViewModel(foodApi) {
     private var _uiState= MutableStateFlow<SignInEvent>(SignInEvent.Nothing)
     val uiState=_uiState.asStateFlow()
 
@@ -75,36 +76,25 @@ class SignInViewModel @Inject constructor(val foodApi: FoodApi): ViewModel() {
         }
     }
     fun onGoogleClicked(context: Context) {
-        viewModelScope.launch {
-            _uiState.value = SignInEvent.Loading
-            try { // Add a try-catch block to handle exceptions
-                val response = googleAuthUiProvider.signIn(
-                    context,
-                    CredentialManager.create(context)
-                )
+        initiateGoogleLogin(context as ComponentActivity)
+    }
 
-                if (response != null) {
-                    val request = OAuthRequest(
-                        token = response.token,
-                        provider = "google"
-                    )
-                    val res = foodApi.oAuth(request)
-                    if (res.token.isNotEmpty()) {
-                        Log.d("SignInViewModel", "onGoogleClicked: ${res.token}")
-                        _uiState.value = SignInEvent.Success
-                        _navigationEvent.emit(SignInNavigation.NavigateToHome)
-                    } else {
-                        _uiState.value = SignInEvent.Error
-                    }
-                } else {
-                    // User might have cancelled the sign-in
-                    _uiState.value = SignInEvent.Error
-                }
-            } catch (e: Exception) {
-                // This will catch crashes from the signIn process or the api call
-                e.printStackTrace()
-                _uiState.value = SignInEvent.Error
-            }
+    override fun loading() {
+        viewModelScope.launch {
+            _uiState.value=SignInEvent.Loading
+        }
+    }
+
+    override fun success(token: String) {
+        viewModelScope.launch {
+            _uiState.value=SignInEvent.Success
+            _navigationEvent.emit(SignInNavigation.NavigateToHome)
+        }
+    }
+
+    override fun error(message: String) {
+        viewModelScope.launch {
+            _uiState.value=SignInEvent.Error
         }
     }
 

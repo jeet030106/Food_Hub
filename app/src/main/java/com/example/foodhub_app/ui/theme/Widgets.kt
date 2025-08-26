@@ -1,5 +1,6 @@
 package com.example.foodhub_app.ui.theme
 
+import androidx.activity.ComponentActivity
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -33,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -44,11 +46,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import com.example.foodhub_app.R
+import com.example.foodhub_app.ui.BaseAuthViewModel
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
 @Composable
-fun GroupSocialIcons(color: Color, onFacebookClick: () -> Unit, onGoogleClick: () -> Unit) {
+fun GroupSocialIcons(color: Color, viewModel: BaseAuthViewModel) {
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -60,6 +63,8 @@ fun GroupSocialIcons(color: Color, onFacebookClick: () -> Unit, onGoogleClick: (
             HorizontalDivider(modifier = Modifier.weight(1f), thickness = 1.dp, color = color)
         }
         Spacer(modifier = Modifier.size(16.dp))
+        val context = LocalContext.current
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -69,12 +74,20 @@ fun GroupSocialIcons(color: Color, onFacebookClick: () -> Unit, onGoogleClick: (
             SocialButton(
                 icon = R.drawable.ic_google,
                 title = R.string.sign_with_google,
-                onGoogleClick
+                {
+                    (context as? ComponentActivity)?.let { activity ->
+                        viewModel.onClickedGoogleLogin(activity)
+                    }
+                }
             )
             SocialButton(
                 icon = R.drawable.ic_facebook,
                 title = R.string.sign_with_facebook,
-                onFacebookClick
+                onClick = {
+                    (context as? ComponentActivity)?.let { activity ->
+                        viewModel.onClickedFacebookLogin(activity)
+                    }
+                }
             )
 
         }

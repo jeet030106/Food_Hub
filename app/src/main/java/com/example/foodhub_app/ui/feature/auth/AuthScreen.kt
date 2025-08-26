@@ -18,6 +18,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,16 +34,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.foodhub_app.R
+import com.example.foodhub_app.ui.navigation.Home
 import com.example.foodhub_app.ui.navigation.Login
 import com.example.foodhub_app.ui.navigation.SignUp
 import com.example.foodhub_app.ui.theme.GroupSocialIcons
 import com.example.foodhub_app.ui.theme.Orange
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
-fun AuthScreen(navController: NavController){
+fun AuthScreen(navController: NavController,viewModel: AuthViewModel = hiltViewModel()){
     val imageSize= remember {
         mutableStateOf(IntSize.Zero)
     }
@@ -53,6 +57,19 @@ fun AuthScreen(navController: NavController){
         ),
         startY = imageSize.value.height.toFloat()/3
     )
+
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collectLatest {
+            when(it){
+                AuthViewModel.SignAuthNavigation.NavigateToHome -> {
+                    navController.navigate(Home)
+                }
+                AuthViewModel.SignAuthNavigation.NavigateToSignUp -> {
+                    navController.navigate(SignUp)
+                }
+            }
+        }
+    }
 
     Box(modifier= Modifier
         .fillMaxSize()
@@ -112,9 +129,7 @@ fun AuthScreen(navController: NavController){
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Bottom
         ){
-            GroupSocialIcons(color = Color.White, onFacebookClick = { /*TODO*/ }) {
-
-            }
+            GroupSocialIcons(color = Color.White,viewModel = viewModel)
             Spacer(modifier = Modifier.size(10.dp))
             Button(
                 onClick = {
