@@ -8,13 +8,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.foodhub_app.data.FoodApi
 import com.example.foodhub_app.data.auth.GoogleAuthUiProvider
+import com.example.foodhub_app.data.model.AuthResponse
 import com.example.foodhub_app.data.model.OAuthRequest
+import com.example.foodhub_app.data.remote.ApiResponse
+import com.example.foodhub_app.data.remote.safeApiCall
 import com.example.foodhub_app.ui.feature.auth.login.SignInViewModel.SignInEvent
 import com.example.foodhub_app.ui.feature.auth.login.SignInViewModel.SignInNavigation
+import com.stripe.android.model.Token
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 abstract class BaseAuthViewModel(open val foodApi: FoodApi): ViewModel() {
+    var errorTitle:String=""
+    var errorMsg:String=""
     val googleAuthUiProvider= GoogleAuthUiProvider()
     abstract fun loading()
     abstract fun success(token:String)
@@ -32,37 +38,48 @@ abstract class BaseAuthViewModel(open val foodApi: FoodApi): ViewModel() {
 
         }
     }
+    fun fetchFoodAppToken(token: String,provider: String,onError:(String)->Unit){
+        viewModelScope.launch {
+            val request = OAuthRequest(
+                token = token,
+                provider = provider
+            )
+            val res= safeApiCall {
+                foodApi.oAuth(request)
+            }
+            when(res){
+                is ApiResponse.Success -> {
+                    success(res.data.token)
+                }
+                else ->{
+                    val error= (res as? ApiResponse.Error)?.code
+                    if(error!=null){
+                        when(error){
+                            401 -> error("Invalid token")
+                            500 -> error("Internal server error")
+                            404 -> error("Not found")
+                            else -> error("Something went wrong")
+                        }
+                    }else{
+                        error("Something went wrong")
+                    }
+                }
 
+            }
+
+        }
+    }
     protected fun initiateGoogleLogin(context: ComponentActivity){
         viewModelScope.launch {
-            try { // Add a try-catch block to handle exceptions
                 loading()
                 val response = googleAuthUiProvider.signIn(
                     context,
                     CredentialManager.create(context)
                 )
 
-                if (response != null) {
-                    val request = OAuthRequest(
-                        token = response.token,
-                        provider = "google"
-                    )
-                    val res = foodApi.oAuth(request)
-                    if (res.token.isNotEmpty()) {
-                        Log.d("SignInViewModel", "onGoogleClicked: ${res.token}")
-                        success(res.token)
-                    } else {
-                        error("Invalid token")
-                    }
-                } else {
-                    // User might have cancelled the sign-in
-                    error("User might have cancelled the sign-in")
+                fetchFoodAppToken(response.token, provider = "google"){
+                    error(it)
                 }
-            } catch (e: Exception) {
-                // This will catch crashes from the signIn process or the api call
-                e.printStackTrace()
-                error("Something went wrong")
-            }
         }
     }
 }

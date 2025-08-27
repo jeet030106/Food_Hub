@@ -43,6 +43,9 @@ class AuthViewModel@Inject constructor(override val foodApi: FoodApi): BaseAuthV
 
     override fun error(message: String) {
         viewModelScope.launch {
+            errorMsg=message
+            errorTitle="Falied to Sign In"
+            _navigationEvent.emit(SignAuthNavigation.NavigateToDialog)
             _uiState.value=SignAuthEvent.Error
         }
     }
@@ -50,6 +53,7 @@ class AuthViewModel@Inject constructor(override val foodApi: FoodApi): BaseAuthV
     sealed class SignAuthNavigation{
         object NavigateToSignUp:SignAuthNavigation()
         object NavigateToHome:SignAuthNavigation()
+        object NavigateToDialog:SignAuthNavigation()
     }
     sealed class SignAuthEvent{
         object Nothing:SignAuthEvent()

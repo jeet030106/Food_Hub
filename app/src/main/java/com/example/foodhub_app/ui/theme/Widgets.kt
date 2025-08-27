@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -31,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -38,6 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
@@ -244,4 +247,29 @@ fun CustomNavHost(
         builder = builder,
         sizeTransform = sizeTransform
     )
+}
+@Composable
+fun BasicDialogBox(title:String,description:String,onClick: () -> Unit ){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = title, style = TextStyle(
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        ))
+        Text(text = description, style = TextStyle(
+            fontWeight = FontWeight.Normal,
+            color = Color.Black
+        ))
+        Button(onClick = onClick,
+            colors = ButtonDefaults.buttonColors(Orange),
+            shape = RoundedCornerShape(32.dp)) {
+            Text(text = "OK")
+        }
+
+    }
 }

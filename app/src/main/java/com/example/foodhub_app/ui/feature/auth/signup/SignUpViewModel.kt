@@ -57,7 +57,7 @@ class SignUpViewModel @Inject constructor(override val foodApi: FoodApi): BaseAu
                        password = password.value
                    )
                )
-               if(respose.token.isNotEmpty()){
+               if(respose.body()?.token?.isNotEmpty()==true){
                    _uiState.value=SignUpEvent.Success
                    _navigationEvent.emit(SignUpNavigation.NavigateToHome)
                }
@@ -97,6 +97,8 @@ class SignUpViewModel @Inject constructor(override val foodApi: FoodApi): BaseAu
     override fun error(message: String) {
         viewModelScope.launch {
             _uiState.value=SignUpEvent.Error
+            errorMsg=message
+            errorTitle="Falied to Sign In"
         }
     }
     sealed class SignUpNavigation{
