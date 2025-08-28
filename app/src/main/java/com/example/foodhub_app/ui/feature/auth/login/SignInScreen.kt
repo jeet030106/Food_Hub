@@ -25,13 +25,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,14 +60,20 @@ import com.example.foodhub_app.ui.navigation.Auth
 import com.example.foodhub_app.ui.navigation.Home
 import com.example.foodhub_app.ui.navigation.Login
 import com.example.foodhub_app.ui.navigation.SignUp
+import com.example.foodhub_app.ui.theme.BasicDialogBox
 import com.example.foodhub_app.ui.theme.FoodHubTextField
 import com.example.foodhub_app.ui.theme.GroupSocialIcons
 import com.example.foodhub_app.ui.theme.Orange
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignInScreen(navController: NavController,viewModel: SignInViewModel= hiltViewModel()){
+    val sheetState= rememberModalBottomSheetState()
+    val scope= rememberCoroutineScope()
+    var showDialog by remember{mutableStateOf(false)}
     val mail=viewModel.mail.collectAsStateWithLifecycle()
     val passsword=viewModel.password.collectAsStateWithLifecycle()
     val errorMessage=remember{ mutableStateOf<String?>(null) }
@@ -96,6 +106,9 @@ fun SignInScreen(navController: NavController,viewModel: SignInViewModel= hiltVi
                 }
                 is SignInViewModel.SignInNavigation.NavigateToSignUp->{
                     navController.navigate(SignUp)
+                }
+                is SignInViewModel.SignInNavigation.NavigateToDialog -> {
+                    showDialog=true
                 }
             }
         }
@@ -206,6 +219,19 @@ fun SignInScreen(navController: NavController,viewModel: SignInViewModel= hiltVi
                     viewModel = viewModel
                 )
                 Spacer(modifier = Modifier.size(16.dp))
+            }
+        }
+    }
+    if(showDialog){
+        ModalBottomSheet(onDismissRequest = { showDialog=false },sheetState = sheetState) {
+            BasicDialogBox(
+                viewModel.errorTitle,
+                viewModel.errorMsg,
+            ) {
+                scope.launch {
+                    sheetState.hide()
+                    showDialog=false
+                }
             }
         }
     }

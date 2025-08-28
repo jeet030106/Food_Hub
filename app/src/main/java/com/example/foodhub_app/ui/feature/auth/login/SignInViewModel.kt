@@ -8,12 +8,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.foodhub_app.data.FoodApi
+import com.example.foodhub_app.data.FoodHubSession
 import com.example.foodhub_app.data.auth.GoogleAuthUiProvider
 import com.example.foodhub_app.data.model.OAuthRequest
 import com.example.foodhub_app.data.model.SignInRequest
 import com.example.foodhub_app.data.model.SignUpRequest
+import com.example.foodhub_app.data.remote.ApiResponse
+import com.example.foodhub_app.data.remote.safeApiCall
 import com.example.foodhub_app.ui.BaseAuthViewModel
 import com.example.foodhub_app.ui.feature.auth.signup.SignUpViewModel
+import com.example.foodhub_app.ui.feature.auth.signup.SignUpViewModel.SignUpEvent
+import com.example.foodhub_app.ui.feature.auth.signup.SignUpViewModel.SignUpNavigation
 import dagger.hilt.android.internal.Contexts
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -25,7 +30,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SignInViewModel @Inject constructor(override val foodApi: FoodApi): BaseAuthViewModel(foodApi) {
+class SignInViewModel @Inject constructor(override val foodApi: FoodApi,val session: FoodHubSession): BaseAuthViewModel(foodApi) {
     private var _uiState= MutableStateFlow<SignInEvent>(SignInEvent.Nothing)
     val uiState=_uiState.asStateFlow()
 
@@ -48,15 +53,44 @@ class SignInViewModel @Inject constructor(override val foodApi: FoodApi): BaseAu
         viewModelScope.launch{
             try {
                 _uiState.value=SignInEvent.Loading
-                val respose=foodApi.signIn(
-                    SignInRequest(
-                        email = mail.value,
-                        password = password.value
+                val respose= safeApiCall {
+                    foodApi.signIn(
+                        SignInRequest(
+                            email = mail.value,
+                            password = password.value
+                        )
                     )
-                )
-                if(respose.body()?.token?.isNotEmpty()==true){
-                    _uiState.value=SignInEvent.Success
-                    _navigationEvent.emit(SignInNavigation.NavigateToHome)
+                }
+                when(respose){
+                    is ApiResponse.Success->{
+                        session.storeToken(respose.data.token)
+                        _uiState.value=SignInEvent.Success
+                        _navigationEvent.emit(SignInNavigation.NavigateToHome)
+                    }
+                    else -> {
+                        val err=(respose as? ApiResponse.Error)?.code
+                        errorTitle="Sign In Failure"
+                        errorMsg="Failed to Sign In"
+                        when(err){
+                            401 ->{
+                                errorTitle="Invalid credentials"
+                                errorMsg="Please enter valid credentials"
+                            }
+                            500 ->{
+                                errorTitle="Internal server error"
+                                errorMsg="Please try again later"
+                            }
+                            404 ->{
+                                errorTitle="Not found"
+                                errorMsg="Please try again later"
+                            }
+                            else ->{
+                                errorTitle="Something went wrong"
+                                errorMsg="Please try again later"
+                            }
+                        }
+                        _uiState.value=SignInEvent.Error
+                    }
                 }
             }catch(e:Exception){
                 e.printStackTrace()
@@ -87,6 +121,7 @@ class SignInViewModel @Inject constructor(override val foodApi: FoodApi): BaseAu
 
     override fun success(token: String) {
         viewModelScope.launch {
+            session.storeToken(token)
             _uiState.value=SignInEvent.Success
             _navigationEvent.emit(SignInNavigation.NavigateToHome)
 
@@ -96,6 +131,7 @@ class SignInViewModel @Inject constructor(override val foodApi: FoodApi): BaseAu
     override fun error(message: String) {
         viewModelScope.launch {
             _uiState.value=SignInEvent.Error
+            _navigationEvent.emit(SignInNavigation.NavigateToDialog)
             errorMsg=message
             errorTitle="Falied to Sign In"
         }
@@ -104,6 +140,7 @@ class SignInViewModel @Inject constructor(override val foodApi: FoodApi): BaseAu
     sealed class SignInNavigation{
         object NavigateToSignUp:SignInNavigation()
         object NavigateToHome:SignInNavigation()
+        object NavigateToDialog:SignInNavigation()
     }
     sealed class SignInEvent{
         object Nothing:SignInEvent()

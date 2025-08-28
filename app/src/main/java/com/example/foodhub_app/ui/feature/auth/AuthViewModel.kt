@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.credentials.CredentialManager
 import androidx.lifecycle.viewModelScope
 import com.example.foodhub_app.data.FoodApi
+import com.example.foodhub_app.data.FoodHubSession
 import com.example.foodhub_app.data.model.OAuthRequest
 import com.example.foodhub_app.data.model.SignInRequest
 import com.example.foodhub_app.ui.BaseAuthViewModel
@@ -17,7 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 @HiltViewModel
-class AuthViewModel@Inject constructor(override val foodApi: FoodApi): BaseAuthViewModel(foodApi) {
+class AuthViewModel@Inject constructor(override val foodApi: FoodApi,val session: FoodHubSession): BaseAuthViewModel(foodApi) {
     private var _uiState= MutableStateFlow<SignAuthEvent>(SignAuthEvent.Nothing)
     val uiState=_uiState.asStateFlow()
 
@@ -36,6 +37,7 @@ class AuthViewModel@Inject constructor(override val foodApi: FoodApi): BaseAuthV
 
     override fun success(token: String) {
         viewModelScope.launch {
+            session.storeToken(token)
             _uiState.value=SignAuthEvent.Success
             _navigationEvent.emit(SignAuthNavigation.NavigateToHome)
         }

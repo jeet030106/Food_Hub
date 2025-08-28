@@ -29,10 +29,12 @@ import androidx.navigation.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.foodhub_app.data.FoodApi
+import com.example.foodhub_app.data.FoodHubSession
 import com.example.foodhub_app.data.model.SignInRequest
 import com.example.foodhub_app.ui.feature.auth.AuthScreen
 import com.example.foodhub_app.ui.feature.auth.login.SignInScreen
 import com.example.foodhub_app.ui.feature.auth.signup.SignUpScreen
+import com.example.foodhub_app.ui.feature.home.HomeScreen
 import com.example.foodhub_app.ui.navigation.Auth
 import com.example.foodhub_app.ui.navigation.Home
 import com.example.foodhub_app.ui.navigation.Login
@@ -52,6 +54,8 @@ class MainActivity : ComponentActivity() {
     var splashScreen=true
     @Inject
     lateinit var foodApi: FoodApi
+    @Inject
+    lateinit var session: FoodHubSession
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen().apply {
             setKeepOnScreenCondition { splashScreen }
@@ -73,7 +77,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController=rememberNavController()
-            val navHost= CustomNavHost(navController = navController, startDestination = Auth,
+            val navHost= CustomNavHost(navController = navController,
+                startDestination = if(session.getToken()==null) Auth else Home,
                 enterTransition = {
                     slideIntoContainer(
                         towards = AnimatedContentTransitionScope.SlideDirection.Left,
@@ -109,9 +114,7 @@ class MainActivity : ComponentActivity() {
                     SignInScreen(navController)
                 }
                 composable<Home>{
-                    Box(modifier= Modifier.fillMaxSize().background(Color.Red)){
-
-                    }
+                    HomeScreen(navController)
                 }
             }
         }
