@@ -28,6 +28,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.foodhub_app.data.FoodApi
 import com.example.foodhub_app.data.FoodHubSession
 import com.example.foodhub_app.data.model.SignInRequest
@@ -35,9 +36,11 @@ import com.example.foodhub_app.ui.feature.auth.AuthScreen
 import com.example.foodhub_app.ui.feature.auth.login.SignInScreen
 import com.example.foodhub_app.ui.feature.auth.signup.SignUpScreen
 import com.example.foodhub_app.ui.feature.home.HomeScreen
+import com.example.foodhub_app.ui.feature.restaurant_details.RestaurantDetailScreen
 import com.example.foodhub_app.ui.navigation.Auth
 import com.example.foodhub_app.ui.navigation.Home
 import com.example.foodhub_app.ui.navigation.Login
+import com.example.foodhub_app.ui.navigation.RestaurantDetail
 import com.example.foodhub_app.ui.navigation.SignUp
 import com.example.foodhub_app.ui.theme.CustomNavHost
 import com.example.foodhub_app.ui.theme.FoodHub_AppTheme
@@ -115,6 +118,10 @@ class MainActivity : ComponentActivity() {
                 }
                 composable<Home>{
                     HomeScreen(navController)
+                }
+                composable<RestaurantDetail>{
+                    val route=it.toRoute<RestaurantDetail>()
+                    RestaurantDetailScreen(navController,route.name,route.imageUrl,route.restaurantId,)
                 }
             }
         }

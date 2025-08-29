@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.TopStart
@@ -46,13 +47,30 @@ import com.example.foodhub_app.R
 import com.example.foodhub_app.data.model.Category
 import com.example.foodhub_app.data.model.Restaurants
 import com.example.foodhub_app.data.remote.ApiResponse
+import com.example.foodhub_app.ui.navigation.RestaurantDetail
 import com.example.foodhub_app.ui.theme.Orange
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import java.time.format.TextStyle
 
 
 @Composable
 fun HomeScreen(navController: NavController,viewModel: HomeScreenViewModel= hiltViewModel()) {
+
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collectLatest {
+            when(it){
+                is HomeScreenViewModel.HomeScreenNavigationEvents.NavigateToDetail->{
+                    navController.navigate(RestaurantDetail(
+                        it.restaurantId, it.name, it.imageUrl
+                    ))
+                }
+                else->{
+
+                }
+            }
+        }
+    }
     val uiState = viewModel.uiState.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize().background(Color.Black.copy(0.001f)).padding(16.dp)) {
@@ -70,7 +88,7 @@ fun HomeScreen(navController: NavController,viewModel: HomeScreenViewModel= hilt
 
                 // Restaurants
                 RestaurantList(restaurants = restaurants, onRestaurantSelected = {
-                    // Handle restaurant click
+                    viewModel.onRestaurantSelected(it)
                 })
             }
 
@@ -172,7 +190,7 @@ fun RestaurantItem(restaurants: Restaurants, onRestaurantSelected: (Restaurants)
                 // Rating row overlaid on top-left of image
                 Row(
                     modifier = Modifier
-                        .align(Alignment.TopStart)
+                        .align(TopStart)
                         .padding(8.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .background(Color.White)

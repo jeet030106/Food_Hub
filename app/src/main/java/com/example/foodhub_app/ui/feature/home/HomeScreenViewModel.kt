@@ -70,6 +70,17 @@ class HomeScreenViewModel@Inject constructor(private val foodApi: FoodApi): View
         }
     }
 
+    fun onRestaurantSelected(it: Restaurants){
+        viewModelScope.launch {
+            _navigationEvent.emit(
+                HomeScreenNavigationEvents.NavigateToDetail(
+                    it.name,
+                    it.imageUrl,
+                    it.id
+                )
+            )
+        }
+    }
     sealed class HomeScreenState{
         object Empty :HomeScreenState()
         object Loading:HomeScreenState()
@@ -77,6 +88,6 @@ class HomeScreenViewModel@Inject constructor(private val foodApi: FoodApi): View
     }
 
     sealed class HomeScreenNavigationEvents{
-        object NavigateToDetail:HomeScreenNavigationEvents()
+        data class NavigateToDetail(val name:String,val imageUrl:String,val restaurantId:String):HomeScreenNavigationEvents()
     }
 }

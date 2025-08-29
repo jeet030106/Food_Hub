@@ -15,3 +15,6 @@ object Auth:navRoutes
 
 @Serializable
 object Home:navRoutes
+
+@Serializable
+data class RestaurantDetail(val restaurantId:String,val name:String,val imageUrl:String):navRoutes
