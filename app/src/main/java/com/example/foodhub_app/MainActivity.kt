@@ -9,6 +9,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -59,6 +62,7 @@ class MainActivity : ComponentActivity() {
     lateinit var foodApi: FoodApi
     @Inject
     lateinit var session: FoodHubSession
+    @OptIn(ExperimentalSharedTransitionApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen().apply {
             setKeepOnScreenCondition { splashScreen }
@@ -80,50 +84,38 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController=rememberNavController()
-            val navHost= CustomNavHost(navController = navController,
-                startDestination = if(session.getToken()==null) Auth else Home,
-                enterTransition = {
-                    slideIntoContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(700),
-                    )+ fadeIn(animationSpec = tween(700), initialAlpha = 0.2f)
-                },
-                exitTransition = {
-                    slideOutOfContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(700),
-                    )+ fadeOut(animationSpec = tween(700), targetAlpha = 1f)
-                },
-                popEnterTransition = {
-                    slideIntoContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                        animationSpec = tween(700),
-                    )+ fadeIn(animationSpec = tween(700), initialAlpha = 0.2f)
-                },
-                popExitTransition = {
-                    slideOutOfContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                        animationSpec = tween(700),
-                    )+ fadeOut(animationSpec = tween(700), targetAlpha = 1f)
-                },
-            ){
-                composable<SignUp>{
-                    SignUpScreen(navController)
-                }
-                composable<Auth>{
-                    AuthScreen(navController)
-                }
-                composable<Login>{
-                    SignInScreen(navController)
-                }
-                composable<Home>{
-                    HomeScreen(navController)
-                }
-                composable<RestaurantDetail>{
-                    val route=it.toRoute<RestaurantDetail>()
-                    RestaurantDetailScreen(navController,route.name,route.imageUrl,route.restaurantId,)
+            SharedTransitionLayout {
+                CustomNavHost(
+                    navController = navController,
+                    startDestination = if (session.getToken() == null) Auth else Home
+                ) {
+                    composable<SignUp> {
+                        SignUpScreen(navController)
+                    }
+                    composable<Auth> {
+                        AuthScreen(navController)
+                    }
+                    composable<Login> {
+                        SignInScreen(navController)
+                    }
+                    composable<Home> {
+                        // Pass 'this' which is the AnimatedVisibilityScope
+                        HomeScreen(
+                            navController,
+                            this
+                        )
+                    }
+                    composable<RestaurantDetail> {
+                        val route = it.toRoute<RestaurantDetail>()
+                        // Pass 'this' which is the AnimatedVisibilityScope
+                        RestaurantDetailScreen(
+                            navController, route.name, route.imageUrl, route.restaurantId,
+                            this
+                        )
+                    }
                 }
             }
+
         }
         if(::foodApi.isInitialized){
             Log.d("Jeet","Initialized")

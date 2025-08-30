@@ -1,6 +1,9 @@
 package com.example.foodhub_app.ui.feature.home
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +30,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
@@ -54,8 +58,9 @@ import kotlinx.coroutines.flow.collectLatest
 import java.time.format.TextStyle
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun HomeScreen(navController: NavController,viewModel: HomeScreenViewModel= hiltViewModel()) {
+fun SharedTransitionScope.HomeScreen(navController: NavController,animatedVisibilityScope: AnimatedVisibilityScope,viewModel: HomeScreenViewModel= hiltViewModel()) {
 
     LaunchedEffect(Unit) {
         viewModel.navigationEvent.collectLatest {
@@ -87,7 +92,7 @@ fun HomeScreen(navController: NavController,viewModel: HomeScreenViewModel= hilt
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Restaurants
-                RestaurantList(restaurants = restaurants, onRestaurantSelected = {
+                RestaurantList(restaurants = restaurants, animatedVisibilityScope,onRestaurantSelected = {
                     viewModel.onRestaurantSelected(it)
                 })
             }
@@ -126,8 +131,9 @@ fun CategoryList(categories:List<Category>,onCategorySelected:(Category)->Unit){
     }
 
 }
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun RestaurantList(restaurants:List<Restaurants>, onRestaurantSelected:(Restaurants)->Unit){
+fun SharedTransitionScope.RestaurantList(restaurants:List<Restaurants>,animatedVisibilityScope: AnimatedVisibilityScope, onRestaurantSelected:(Restaurants)->Unit){
     Column() {
 
         Row(
@@ -155,7 +161,7 @@ fun RestaurantList(restaurants:List<Restaurants>, onRestaurantSelected:(Restaura
             modifier = Modifier.padding(top = 8.dp)
         ) {
             items(restaurants){
-                RestaurantItem(it,onRestaurantSelected)
+                RestaurantItem(it,onRestaurantSelected, animatedVisibilityScope)
             }
         }
     }
@@ -163,8 +169,9 @@ fun RestaurantList(restaurants:List<Restaurants>, onRestaurantSelected:(Restaura
 }
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun RestaurantItem(restaurants: Restaurants, onRestaurantSelected: (Restaurants) -> Unit) {
+fun SharedTransitionScope.RestaurantItem(restaurants: Restaurants, onRestaurantSelected: (Restaurants) -> Unit,animatedVisibilityScope: AnimatedVisibilityScope) {
     Box(
         modifier = Modifier
             .width(272.dp)
@@ -183,7 +190,7 @@ fun RestaurantItem(restaurants: Restaurants, onRestaurantSelected: (Restaurants)
                 AsyncImage(
                     model = restaurants.imageUrl,
                     contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().sharedElement(state= rememberSharedContentState(key="image/${restaurants.id}"),animatedVisibilityScope),
                     contentScale = ContentScale.Crop
                 )
 
