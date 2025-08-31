@@ -1,6 +1,5 @@
 package com.example.foodhub_app.ui.feature.auth.signup
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -54,14 +53,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.foodhub_app.R
-import com.example.foodhub_app.ui.feature.auth.AuthScreen
 import com.example.foodhub_app.ui.navigation.Auth
 import com.example.foodhub_app.ui.navigation.Home
 import com.example.foodhub_app.ui.navigation.Login
 import com.example.foodhub_app.ui.theme.BasicDialogBox
 import com.example.foodhub_app.ui.theme.FoodHubTextField
 import com.example.foodhub_app.ui.theme.GroupSocialIcons
-import com.example.foodhub_app.ui.theme.Orange
+import com.example.foodhub_app.ui.theme.Primary
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -189,7 +187,7 @@ fun SignUpScreen(navController: NavController,viewModel: SignUpViewModel= hiltVi
                 errorMessage.value?.let { Text(text = it, color = Color.Red) }
                 Button(
                     onClick = viewModel::onSignUpClick,
-                    colors =ButtonDefaults.buttonColors(containerColor = Orange),
+                    colors =ButtonDefaults.buttonColors(containerColor = Primary),
                     modifier = Modifier
                         .width(275.dp)
                         .height(64.dp)
@@ -217,7 +215,7 @@ fun SignUpScreen(navController: NavController,viewModel: SignUpViewModel= hiltVi
                 Spacer(modifier = Modifier.size(32.dp),)
                 Text(
                     text = stringResource(id = R.string.already_have_acc),
-                    color = Orange.copy(alpha = 0.8f),
+                    color = Primary.copy(alpha = 0.8f),
                     fontWeight = FontWeight.Bold,
                     modifier=Modifier
                         .clickable{

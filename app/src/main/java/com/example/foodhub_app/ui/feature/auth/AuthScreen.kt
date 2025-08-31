@@ -49,7 +49,7 @@ import com.example.foodhub_app.ui.navigation.Login
 import com.example.foodhub_app.ui.navigation.SignUp
 import com.example.foodhub_app.ui.theme.BasicDialogBox
 import com.example.foodhub_app.ui.theme.GroupSocialIcons
-import com.example.foodhub_app.ui.theme.Orange
+import com.example.foodhub_app.ui.theme.Primary
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -108,7 +108,7 @@ fun AuthScreen(navController: NavController,viewModel: AuthViewModel = hiltViewM
                 .padding(8.dp)
 
         ) {
-            Text(text= stringResource(id = R.string.skip), color = Orange)
+            Text(text= stringResource(id = R.string.skip), color = Primary)
         }
         Column(modifier = Modifier
             .fillMaxSize()
@@ -124,7 +124,7 @@ fun AuthScreen(navController: NavController,viewModel: AuthViewModel = hiltViewM
 
             Text(
                 text = stringResource(id = R.string.foodhub),
-                color = Orange,
+                color = Primary,
                 fontSize = 50.sp,
                 fontWeight = FontWeight.Bold
             )

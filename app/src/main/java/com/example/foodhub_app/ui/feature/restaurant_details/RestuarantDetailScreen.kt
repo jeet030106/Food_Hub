@@ -6,6 +6,7 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,13 +42,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.foodhub_app.R
 import com.example.foodhub_app.data.model.FoodItem
+import com.example.foodhub_app.ui.navigation.FoodDetails
+import com.example.foodhub_app.ui.theme.Primary
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -68,7 +70,12 @@ fun SharedTransitionScope.RestaurantDetailScreen(
         modifier = Modifier.padding(top=32.dp)
     ){
         item {
-            RestaurantHeader(imageUrl,onFavouriteButton = {},onBackButton = {navController.popBackStack()}, animatedVisibilityScope =  animatedVisibilityScope, restaurantId = restaurantId)
+            RestaurantHeader(
+                imageUrl,
+                onFavouriteButton = {},
+                animatedVisibilityScope =  animatedVisibilityScope,
+                restaurantId = restaurantId
+            ) { navController.popBackStack() }
         }
         item{
             RestaurantDetail(name = name,description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.")
@@ -95,7 +102,9 @@ fun SharedTransitionScope.RestaurantDetailScreen(
                 val foodItem=
                     (uiState.value as RestaurantViewModel.RestaurantEvent.Success).foodItem
                 items(foodItem){
-                    FoodItems(it)
+                    FoodItems(it,animatedVisibilityScope){
+                        navController.navigate(FoodDetails(it))
+                    }
                 }
             }
             is RestaurantViewModel.RestaurantEvent.Nothing->{
@@ -107,8 +116,9 @@ fun SharedTransitionScope.RestaurantDetailScreen(
 
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun FoodItems(foodItem: FoodItem) {
+fun SharedTransitionScope.FoodItems(foodItem: FoodItem,animatedVisibilityScope: AnimatedVisibilityScope,onClick:(FoodItem)->Unit) {
     Box(
         modifier = Modifier
             .padding(12.dp)
@@ -121,6 +131,8 @@ fun FoodItems(foodItem: FoodItem) {
                 width = 1.dp,
                 shape = RoundedCornerShape(16.dp)
             )
+            .clickable{onClick.invoke(foodItem)}
+            .sharedElement(state=rememberSharedContentState(key="image/${foodItem.id}"),animatedVisibilityScope)
             .padding(8.dp)
     ) {
         Row(
@@ -226,7 +238,8 @@ fun RestaurantDetail(
         Spacer(modifier = Modifier.size(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically){
            Icon(imageVector = Icons.Filled.Star, contentDescription = null,modifier = Modifier.size(32.dp),
-               tint = MaterialTheme.colorScheme.primary)
+               tint = Primary
+           )
             Spacer(modifier = Modifier.size(4.dp))
             Text(text="4.5",style = MaterialTheme.typography.bodyMedium, modifier = Modifier.align(
                 Alignment.CenterVertically))
@@ -247,11 +260,11 @@ fun RestaurantDetail(
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SharedTransitionScope.RestaurantHeader(
-    imageUrl:String,
-    onFavouriteButton:()->Unit,
+    imageUrl: String,
+    onFavouriteButton: () -> Unit,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    restaurantId: String,
-    onBackButton:()->Unit,
+    restaurantId: String?,
+    onBackButton: () -> Unit,
 ){
     Box(modifier= Modifier.fillMaxWidth()){
         AsyncImage(model=imageUrl, contentDescription = null,
@@ -259,8 +272,7 @@ fun SharedTransitionScope.RestaurantHeader(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
                 .sharedElement(state = rememberSharedContentState(key="image/${restaurantId}"),animatedVisibilityScope),
-            contentScale = ContentScale.Fit,
-        )
+            contentScale = ContentScale.Crop        )
         IconButton(onClick =onBackButton,
             modifier = Modifier
                 .align(Alignment.TopStart)

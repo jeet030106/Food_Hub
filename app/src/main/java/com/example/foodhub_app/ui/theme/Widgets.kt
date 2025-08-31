@@ -145,7 +145,7 @@ fun FoodHubTextField(
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors().copy(
         focusedTextColor = Color.Black,
         unfocusedTextColor = Color.LightGray.copy(alpha = 0.4f),
-        focusedIndicatorColor = Orange,
+        focusedIndicatorColor = Primary,
         unfocusedIndicatorColor = Color.LightGray.copy(alpha = 0.4f)
     )
 ) {
@@ -266,7 +266,7 @@ fun BasicDialogBox(title:String,description:String,onClick: () -> Unit ){
             color = Color.Black
         ))
         Button(onClick = onClick,
-            colors = ButtonDefaults.buttonColors(Orange),
+            colors = ButtonDefaults.buttonColors(Primary),
             shape = RoundedCornerShape(32.dp)) {
             Text(text = "OK")
         }

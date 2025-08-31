@@ -24,13 +24,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.TopStart
 import androidx.compose.ui.Modifier
@@ -50,12 +48,9 @@ import coil.compose.AsyncImage
 import com.example.foodhub_app.R
 import com.example.foodhub_app.data.model.Category
 import com.example.foodhub_app.data.model.Restaurants
-import com.example.foodhub_app.data.remote.ApiResponse
 import com.example.foodhub_app.ui.navigation.RestaurantDetail
-import com.example.foodhub_app.ui.theme.Orange
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.example.foodhub_app.ui.theme.Primary
 import kotlinx.coroutines.flow.collectLatest
-import java.time.format.TextStyle
 
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -153,7 +148,7 @@ fun SharedTransitionScope.RestaurantList(restaurants:List<Restaurants>,animatedV
                         fontSize = 16.sp,
                         textAlign = TextAlign.Center
                     ),
-                    color = Orange
+                    color = Primary
                 )
             }
         }
@@ -179,6 +174,7 @@ fun SharedTransitionScope.RestaurantItem(restaurants: Restaurants, onRestaurantS
             .padding(8.dp)
             .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(8.dp))
+            .clickable { onRestaurantSelected(restaurants) }
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
 
@@ -237,7 +233,6 @@ fun SharedTransitionScope.RestaurantItem(restaurants: Restaurants, onRestaurantS
                     .background(Color.White)
                     .fillMaxWidth()
                     .padding(8.dp)
-                    .clickable { onRestaurantSelected(restaurants) }
                     .clip(RoundedCornerShape(8.dp))
                     .weight(2.5f)
             ) {
@@ -321,8 +316,8 @@ fun CategoryItem(category:Category,onCategorySelected:(Category)->Unit){
                 .shadow(
                     elevation = 16.dp,
                     shape = CircleShape,
-                    ambientColor = Orange,
-                    spotColor = Orange
+                    ambientColor = Primary,
+                    spotColor = Primary
                 ),
             contentScale = ContentScale.Inside,
         )
