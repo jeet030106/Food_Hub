@@ -39,10 +39,12 @@ import com.example.foodhub_app.data.model.SignInRequest
 import com.example.foodhub_app.ui.feature.auth.AuthScreen
 import com.example.foodhub_app.ui.feature.auth.login.SignInScreen
 import com.example.foodhub_app.ui.feature.auth.signup.SignUpScreen
+import com.example.foodhub_app.ui.feature.cart.CartScreen
 import com.example.foodhub_app.ui.feature.food_item_details.FoodDetailsScreen
 import com.example.foodhub_app.ui.feature.home.HomeScreen
 import com.example.foodhub_app.ui.feature.restaurant_details.RestaurantDetailScreen
 import com.example.foodhub_app.ui.navigation.Auth
+import com.example.foodhub_app.ui.navigation.Cart
 import com.example.foodhub_app.ui.navigation.FoodDetails
 import com.example.foodhub_app.ui.navigation.Home
 import com.example.foodhub_app.ui.navigation.Login
@@ -125,6 +127,9 @@ class MainActivity : ComponentActivity() {
                     ){
                         val route = it.toRoute<FoodDetails>()
                         FoodDetailsScreen(navController, this, route.foodItem)
+                    }
+                    composable<Cart> {
+                        CartScreen(navController)
                     }
                 }
             }

@@ -17,13 +17,29 @@ import retrofit2.converter.gson.GsonConverterFactory
 object NetworkModule {
 
     @Provides
-    fun provideOkHttpClient(): OkHttpClient {
-        val logging = HttpLoggingInterceptor()
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY)
-        return OkHttpClient.Builder()
-            .addInterceptor(logging)
-            .build()
+    fun provideClient(session: FoodHubSession):OkHttpClient{
+        val client=OkHttpClient.Builder()
+        client.addInterceptor {chain->
+            val request=chain.request().newBuilder()
+                .addHeader("Authorization","Bearer ${session.getToken()}")
+                .build()
+                chain.proceed(request)
+            }
+            client.addInterceptor(HttpLoggingInterceptor().apply {
+                level= HttpLoggingInterceptor.Level.BODY
+            })
+            return client.build()
+
     }
+
+//    @Provides
+//    fun provideOkHttpClient(): OkHttpClient {
+//        val logging = HttpLoggingInterceptor()
+//        logging.setLevel(HttpLoggingInterceptor.Level.BODY)
+//        return OkHttpClient.Builder()
+//            .addInterceptor(logging)
+//            .build()
+//    }
     @Provides
     fun provideRetrofit(client:OkHttpClient):Retrofit{
         return Retrofit.Builder()

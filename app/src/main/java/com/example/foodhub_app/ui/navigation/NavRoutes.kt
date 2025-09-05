@@ -23,3 +23,6 @@ data class RestaurantDetail(val restaurantId:String,val name:String,val imageUrl
 @Serializable
 data class FoodDetails(val foodItem: FoodItem):navRoutes
 
+@Serializable
+object Cart:navRoutes
+
