@@ -26,3 +26,10 @@ data class FoodDetails(val foodItem: FoodItem):navRoutes
 @Serializable
 object Cart:navRoutes
 
+@Serializable
+object Notification : navRoutes
+
+@Serializable
+object AddressList
+
+

@@ -1,7 +1,11 @@
 package com.example.foodhub_app.ui.feature.cart
 
+import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +18,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -21,36 +27,50 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.foodhub_app.R
+import com.example.foodhub_app.data.model.Address
 import com.example.foodhub_app.data.model.CartItem
 import com.example.foodhub_app.data.model.CheckoutDetails
 import com.example.foodhub_app.ui.feature.food_item_details.FoodItemCounter
+import com.example.foodhub_app.ui.navigation.AddressList
+import com.example.foodhub_app.ui.theme.Primary
 import com.example.foodhub_app.utils.StringUtils
+import kotlinx.coroutines.flow.collectLatest
+
 @Composable
-fun CartScreen(navController: NavController,viewModel: CartScreenViewModel=hiltViewModel()){
+fun CartScreen(navController: NavController,viewModel: CartScreenViewModel){
     val uiState = viewModel.uiState.collectAsState()
+    LaunchedEffect(key1=true){
+        viewModel.navigationEvent.collectLatest{
+            when(it){
+                is CartScreenViewModel.cartEvents.onAddressSelect ->{
+                    navController.navigate(AddressList)
+                }
+                else->{
+
+                }
+            }
+        }
+    }
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(16.dp)) {
-        Spacer(modifier = Modifier.size(48.dp))
-        CartScreenHeader()
+        CartScreenHeader(onBackClick = {navController.popBackStack()})
         Spacer(modifier = Modifier.size(16.dp))
         when(uiState.value){
             is CartScreenViewModel.cartUiState.Error ->{
-
             }
             CartScreenViewModel.cartUiState.Loading ->{
                 Spacer(modifier = Modifier.size(16.dp))
@@ -75,16 +95,75 @@ fun CartScreen(navController: NavController,viewModel: CartScreenViewModel=hiltV
                 }
             }
         }
+        Spacer(modifier = Modifier.weight(1f))
+        if(uiState.value is CartScreenViewModel.cartUiState.Success){
+            AddressSelect(null) {
+                viewModel.onAddressSelect()
+            }
+            Button(onClick = {viewModel.checkout()}, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Primary)) {
+                Text(text = "Checkout",style = MaterialTheme.typography.bodyLarge, color = Color.White)
+            }
+        }
     }
 
 }
 
 @Composable
+fun AddressSelect(address: Address?, onAddressSelect: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .shadow(elevation = 4.dp, shape = RoundedCornerShape(12.dp))
+            .background(Color.White, shape = RoundedCornerShape(12.dp))
+            // ✅ FIX: Call the function correctly. This modifier now handles all clicks.
+            .clickable(onClick = onAddressSelect)
+            .padding(8.dp) // Apply padding to the content inside the box
+    ) {
+        if (address != null) {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+                // No clickable modifier needed here anymore
+            ) {
+                Text(
+                    text = address.addressLine1,
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.size(4.dp))
+                Text(
+                    text = address.addressLine2.toString(),
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.size(4.dp))
+                Text(
+                    text = "${address.city} ${address.state} ${address.country}",
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        } else {
+            // Center the text when there's no address
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Select your address",
+                    color = Color.Black,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        }
+    }
+}
+@Composable
 fun CheckoutView(checkoutDetails: CheckoutDetails){
     Column(modifier = Modifier.fillMaxWidth()){
         CheckoutItem(title = "Subtotal",value = checkoutDetails.subTotal,currency = "USD")
         CheckoutItem(title = "Tax",value = checkoutDetails.tax,currency = "USD")
-        CheckoutItem(title = "Discount",value = checkoutDetails.deliveryFee,currency = "USD")
+        CheckoutItem(title = "Delivery fee",value = checkoutDetails.deliveryFee,currency = "USD")
         CheckoutItem(title = "Total",value = checkoutDetails.totalAmount,currency = "USD")
     }
 }
@@ -102,14 +181,14 @@ fun CheckoutItem(title:String,value:Double,currency:String){
 }
 
 @Composable
-fun CartScreenHeader(){
+fun CartScreenHeader(onBackClick:()->Unit){
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
 
 
     ){
-        IconButton(onClick = {}) {
+        IconButton(onClick = {onBackClick.invoke()}) {
             Image(painter = painterResource(id = R.drawable.back_button), contentDescription = null,modifier = Modifier.size(48.dp))
         }
         Spacer(modifier = Modifier.size(16.dp))
@@ -150,7 +229,7 @@ fun CartItemView(
             )
             Spacer(modifier = Modifier.size(16.dp))
             Row(){
-                Text(text = "${cartItem.menuItemId.price}",style = MaterialTheme.typography.bodyLarge,color = MaterialTheme.colorScheme.primary)
+                Text(text = "${cartItem.menuItemId.price}",style = MaterialTheme.typography.bodyLarge,color = Primary)
                 Spacer(modifier = Modifier.weight(1f))
                 FoodItemCounter(
                     cartItem.quantity,
@@ -158,7 +237,7 @@ fun CartItemView(
                     incrementQuantity = {incrementQuantity.invoke(cartItem,cartItem.quantity)}
                 )
             }
-    }
+        }
 
 
     }

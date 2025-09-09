@@ -1,5 +1,6 @@
 package com.example.foodhub_app.ui.feature.cart
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.foodhub_app.data.FoodApi
@@ -25,6 +26,8 @@ class CartScreenViewModel@Inject constructor(val foodApi: FoodApi): ViewModel() 
 
     private val _navigationEvent = MutableSharedFlow<cartEvents?>()
     val navigationEvent = _navigationEvent.asSharedFlow()
+    private val _itemCount=MutableStateFlow(0)
+    val itemCount=_itemCount.asStateFlow()
     private var cartResponse:CartResponse?=null
     init{
         getCart()
@@ -36,6 +39,7 @@ class CartScreenViewModel@Inject constructor(val foodApi: FoodApi): ViewModel() 
             }
             when(res){
                 is ApiResponse.Success ->{
+                    _itemCount.value=res.data.items.size
                     _uiState.value=cartUiState.Success(res.data)
                 }
                 is ApiResponse.Error ->{
@@ -47,7 +51,12 @@ class CartScreenViewModel@Inject constructor(val foodApi: FoodApi): ViewModel() 
             }
         }
     }
-
+    fun onAddressSelect(){
+        viewModelScope.launch {
+            Log.d("ViewModel","fun executed")
+            _navigationEvent.emit(cartEvents.onAddressSelect)
+        }
+    }
     fun incrementQuantity(cartItem: CartItem){
         updateQuantity(cartItem,cartItem.quantity+1)
     }
@@ -111,5 +120,6 @@ class CartScreenViewModel@Inject constructor(val foodApi: FoodApi): ViewModel() 
         object ShowErrorDialog:cartEvents()
         object onQuantityUpdateError:cartEvents()
         object onItemRemoveError:cartEvents()
+        object onAddressSelect:cartEvents()
     }
 }

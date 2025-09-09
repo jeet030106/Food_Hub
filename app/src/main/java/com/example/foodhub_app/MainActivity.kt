@@ -1,5 +1,6 @@
 package com.example.foodhub_app
 
+import android.R.attr.text
 import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.util.Log
@@ -8,49 +9,64 @@ import android.view.animation.OvershootInterpolator
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.window.Popup
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.navigation.NavHost
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.foodhub_app.MainActivity.BottomNavItems.Cart.icon
 import com.example.foodhub_app.data.FoodApi
 import com.example.foodhub_app.data.FoodHubSession
 import com.example.foodhub_app.data.model.FoodItem
-import com.example.foodhub_app.data.model.SignInRequest
+import com.example.foodhub_app.ui.feature.address_list.AddressListScreen
 import com.example.foodhub_app.ui.feature.auth.AuthScreen
 import com.example.foodhub_app.ui.feature.auth.login.SignInScreen
 import com.example.foodhub_app.ui.feature.auth.signup.SignUpScreen
 import com.example.foodhub_app.ui.feature.cart.CartScreen
+import com.example.foodhub_app.ui.feature.cart.CartScreenViewModel
 import com.example.foodhub_app.ui.feature.food_item_details.FoodDetailsScreen
 import com.example.foodhub_app.ui.feature.home.HomeScreen
 import com.example.foodhub_app.ui.feature.restaurant_details.RestaurantDetailScreen
+import com.example.foodhub_app.ui.navigation.AddressList
 import com.example.foodhub_app.ui.navigation.Auth
 import com.example.foodhub_app.ui.navigation.Cart
 import com.example.foodhub_app.ui.navigation.FoodDetails
 import com.example.foodhub_app.ui.navigation.Home
 import com.example.foodhub_app.ui.navigation.Login
+import com.example.foodhub_app.ui.navigation.Notification
 import com.example.foodhub_app.ui.navigation.RestaurantDetail
 import com.example.foodhub_app.ui.navigation.SignUp
 import com.example.foodhub_app.ui.navigation.foodItemNavType
+import com.example.foodhub_app.ui.navigation.navRoutes
 import com.example.foodhub_app.ui.theme.CustomNavHost
 import com.example.foodhub_app.ui.theme.FoodHub_AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -58,7 +74,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import okhttp3.Dispatcher
 import javax.inject.Inject
 import kotlin.reflect.typeOf
 
@@ -69,6 +84,14 @@ class MainActivity : ComponentActivity() {
     lateinit var foodApi: FoodApi
     @Inject
     lateinit var session: FoodHubSession
+
+    sealed class BottomNavItems(val routes: navRoutes,val icon:Int){
+        object Home:BottomNavItems(com.example.foodhub_app.ui.navigation.Home,R.drawable.ic_home)
+        object Cart:BottomNavItems(com.example.foodhub_app.ui.navigation.Cart,R.drawable.ic_cart)
+        object Notification:BottomNavItems(com.example.foodhub_app.ui.navigation.Notification,R.drawable.ic_notification)
+    }
+
+
     @OptIn(ExperimentalSharedTransitionApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen().apply {
@@ -90,50 +113,117 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val navController=rememberNavController()
-            SharedTransitionLayout {
-                CustomNavHost(
-                    navController = navController,
-                    startDestination = if (session.getToken() == null) Auth else Home
-                ) {
-                    composable<SignUp> {
-                        SignUpScreen(navController)
+            FoodHub_AppTheme {
+                val showBottomBar=remember{
+                    mutableStateOf(false)
+                }
+                val  navItems=listOf(BottomNavItems.Home,BottomNavItems.Cart,BottomNavItems.Notification)
+                val cartViewModel: CartScreenViewModel= hiltViewModel()
+                val navController = rememberNavController()
+                val itemCount=cartViewModel.itemCount.collectAsStateWithLifecycle()
+                Scaffold(modifier = Modifier.fillMaxSize(),
+
+                    bottomBar ={
+                        val currentRoute=navController.currentBackStackEntryAsState().value?.destination
+                        AnimatedVisibility(visible = showBottomBar.value) {
+                            NavigationBar {
+                                navItems.forEach { item ->
+                                    val selected=currentRoute?.hierarchy?.any { it.route==item.routes::class.qualifiedName }==true
+                                    NavigationBarItem(
+                                        selected = selected,
+                                        onClick = { navController.navigate(item.routes) },
+                                        icon={
+                                            Box(modifier = Modifier.size(48.dp)){
+                                                Icon(painter = painterResource(id = item.icon), contentDescription = null,
+                                                    tint = if (selected) MaterialTheme.colorScheme.primary else Color.Gray,
+                                                    modifier = Modifier.align(Alignment.Center))
+
+                                                if(item.routes==Cart && itemCount.value>0){
+                                                    Box(
+                                                        modifier= Modifier
+                                                            .size(16.dp)
+                                                            .clip(CircleShape)
+                                                            .background(Color.Black)
+                                                            .align(Alignment.TopEnd)
+                                                    ){
+                                                        Text(text="${itemCount.value}",
+                                                            modifier= Modifier.align(Alignment.Center),
+                                                            color=Color.White,
+                                                            style = MaterialTheme.typography.bodySmall)
+
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
                     }
-                    composable<Auth> {
-                        AuthScreen(navController)
-                    }
-                    composable<Login> {
-                        SignInScreen(navController)
-                    }
-                    composable<Home> {
-                        // Pass 'this' which is the AnimatedVisibilityScope
-                        HomeScreen(
-                            navController,
-                            this
-                        )
-                    }
-                    composable<RestaurantDetail> {
-                        val route = it.toRoute<RestaurantDetail>()
-                        // Pass 'this' which is the AnimatedVisibilityScope
-                        RestaurantDetailScreen(
-                            navController, route.name, route.imageUrl, route.restaurantId,
-                            this
-                        )
-                    }
-                    composable<FoodDetails>(
-                        typeMap=mapOf(
-                            typeOf<FoodItem>() to foodItemNavType
-                        )
-                    ){
-                        val route = it.toRoute<FoodDetails>()
-                        FoodDetailsScreen(navController, this, route.foodItem)
-                    }
-                    composable<Cart> {
-                        CartScreen(navController)
+                ) { innerPadding ->
+
+
+
+                    SharedTransitionLayout {
+                        CustomNavHost(
+                            // The padding is now applied directly here
+                            modifier = Modifier.padding(innerPadding),
+                            navController = navController,
+                            startDestination = if (session.getToken() == null) Auth else Home
+                        ) {
+                            composable<SignUp> {
+                                showBottomBar.value=false
+                                SignUpScreen(navController)
+                            }
+                            composable<Auth> {
+                                showBottomBar.value=false
+                                AuthScreen(navController)
+                            }
+                            composable<Login> {
+                                showBottomBar.value=false
+                                SignInScreen(navController)
+                            }
+                            composable<Home> {
+                                showBottomBar.value=true
+                                HomeScreen(
+                                    navController,
+                                    this
+                                )
+                            }
+                            composable<RestaurantDetail> {
+                                showBottomBar.value=false
+                                val route = it.toRoute<RestaurantDetail>()
+                                RestaurantDetailScreen(
+                                    navController, route.name, route.imageUrl, route.restaurantId,
+                                    this
+                                )
+                            }
+                            composable<FoodDetails>(
+                                typeMap = mapOf(
+                                    typeOf<FoodItem>() to foodItemNavType
+                                )
+                            ) {
+                                showBottomBar.value=false
+                                val route = it.toRoute<FoodDetails>()
+                                FoodDetailsScreen(navController, this, route.foodItem)
+                            }
+                            composable<Cart> {
+                                showBottomBar.value=true
+                                cartViewModel.getCart()
+                                CartScreen(navController,cartViewModel)
+                            }
+                            composable<Notification>{
+                                showBottomBar.value=true
+                            }
+                            composable<AddressList>{
+                                showBottomBar.value=false
+                                AddressListScreen(navController)
+                            }
+                        }
                     }
                 }
             }
-
         }
         if(::foodApi.isInitialized){
             Log.d("Jeet","Initialized")
