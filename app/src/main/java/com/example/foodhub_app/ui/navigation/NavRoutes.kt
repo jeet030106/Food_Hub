@@ -32,4 +32,7 @@ object Notification : navRoutes
 @Serializable
 object AddressList
 
+@Serializable
+object AddAddress
+
 

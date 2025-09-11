@@ -47,6 +47,7 @@ import com.example.foodhub_app.MainActivity.BottomNavItems.Cart.icon
 import com.example.foodhub_app.data.FoodApi
 import com.example.foodhub_app.data.FoodHubSession
 import com.example.foodhub_app.data.model.FoodItem
+import com.example.foodhub_app.ui.feature.add_address.AddAddressScreen
 import com.example.foodhub_app.ui.feature.address_list.AddressListScreen
 import com.example.foodhub_app.ui.feature.auth.AuthScreen
 import com.example.foodhub_app.ui.feature.auth.login.SignInScreen
@@ -56,6 +57,7 @@ import com.example.foodhub_app.ui.feature.cart.CartScreenViewModel
 import com.example.foodhub_app.ui.feature.food_item_details.FoodDetailsScreen
 import com.example.foodhub_app.ui.feature.home.HomeScreen
 import com.example.foodhub_app.ui.feature.restaurant_details.RestaurantDetailScreen
+import com.example.foodhub_app.ui.navigation.AddAddress
 import com.example.foodhub_app.ui.navigation.AddressList
 import com.example.foodhub_app.ui.navigation.Auth
 import com.example.foodhub_app.ui.navigation.Cart
@@ -219,6 +221,10 @@ class MainActivity : ComponentActivity() {
                             composable<AddressList>{
                                 showBottomBar.value=false
                                 AddressListScreen(navController)
+                            }
+                            composable<AddAddress>{
+                                showBottomBar.value=false
+                                AddAddressScreen(navController)
                             }
                         }
                     }
