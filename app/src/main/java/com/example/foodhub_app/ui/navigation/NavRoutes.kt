@@ -30,9 +30,11 @@ object Cart:navRoutes
 object Notification : navRoutes
 
 @Serializable
-object AddressList
+object AddressList :navRoutes
 
 @Serializable
-object AddAddress
+object AddAddress :navRoutes
 
+@Serializable
+data class OrderSuccess(val orderId:String): navRoutes
 

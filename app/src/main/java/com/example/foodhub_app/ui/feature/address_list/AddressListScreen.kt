@@ -141,6 +141,7 @@ fun AddressItem(address: Address) {
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
+            Text(text = "${address.id}",modifier = Modifier.fillMaxWidth(),style = MaterialTheme.typography.bodySmall)
             Text(
                 text = address.addressLine1,
                 style = MaterialTheme.typography.bodyLarge,

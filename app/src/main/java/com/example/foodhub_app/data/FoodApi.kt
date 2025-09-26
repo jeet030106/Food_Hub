@@ -7,9 +7,13 @@ import com.example.foodhub_app.data.model.AddressResponse
 import com.example.foodhub_app.data.model.AuthResponse
 import com.example.foodhub_app.data.model.CartResponse
 import com.example.foodhub_app.data.model.CategoriesResponse
+import com.example.foodhub_app.data.model.ConfirmPaymentRequest
+import com.example.foodhub_app.data.model.ConfirmPaymentResponse
 import com.example.foodhub_app.data.model.FoodItemResponse
 import com.example.foodhub_app.data.model.GenericResponse
 import com.example.foodhub_app.data.model.OAuthRequest
+import com.example.foodhub_app.data.model.PaymentIntentRequest
+import com.example.foodhub_app.data.model.PaymentIntentResponse
 import com.example.foodhub_app.data.model.RestaurantsResponse
 import com.example.foodhub_app.data.model.ReverseGeocodeRequest
 import com.example.foodhub_app.data.model.SignInRequest
@@ -59,4 +63,17 @@ interface FoodApi {
 
     @POST("/addresses/reverse-geocode")
     suspend fun reverseGeocode(@Body request: ReverseGeocodeRequest):Response<Address>
+
+    @POST("/payments/create-intent")
+    suspend fun getPaymentIntent(@Body request: PaymentIntentRequest):Response<PaymentIntentResponse>
+
+    @POST("payments/confirm/{paymentIntentId}")
+    suspend fun verifyPurchase(
+        @Body request: ConfirmPaymentRequest,
+        @Path("paymentIntentId") paymentIntentId: String
+    ): Response<ConfirmPaymentResponse>
+
+
+
+
 }

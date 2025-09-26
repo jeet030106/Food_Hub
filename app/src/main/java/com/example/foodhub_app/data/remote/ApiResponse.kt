@@ -11,7 +11,8 @@ sealed class ApiResponse<out T> {
     }
     data class Exception(val exception: kotlin.Exception): ApiResponse<Nothing>()
 }
-suspend fun <T>safeApiCall(apiCall: suspend () -> Response<T>): ApiResponse<T> {
+suspend fun <T>
+        safeApiCall(apiCall: suspend () -> Response<T>): ApiResponse<T> {
     try {
         val response=apiCall()
         if(response.isSuccessful){

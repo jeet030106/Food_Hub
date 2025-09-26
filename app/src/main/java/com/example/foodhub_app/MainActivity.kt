@@ -56,6 +56,7 @@ import com.example.foodhub_app.ui.feature.cart.CartScreen
 import com.example.foodhub_app.ui.feature.cart.CartScreenViewModel
 import com.example.foodhub_app.ui.feature.food_item_details.FoodDetailsScreen
 import com.example.foodhub_app.ui.feature.home.HomeScreen
+import com.example.foodhub_app.ui.feature.order_success.OrderSuccessScreen
 import com.example.foodhub_app.ui.feature.restaurant_details.RestaurantDetailScreen
 import com.example.foodhub_app.ui.navigation.AddAddress
 import com.example.foodhub_app.ui.navigation.AddressList
@@ -65,6 +66,7 @@ import com.example.foodhub_app.ui.navigation.FoodDetails
 import com.example.foodhub_app.ui.navigation.Home
 import com.example.foodhub_app.ui.navigation.Login
 import com.example.foodhub_app.ui.navigation.Notification
+import com.example.foodhub_app.ui.navigation.OrderSuccess
 import com.example.foodhub_app.ui.navigation.RestaurantDetail
 import com.example.foodhub_app.ui.navigation.SignUp
 import com.example.foodhub_app.ui.navigation.foodItemNavType
@@ -225,6 +227,12 @@ class MainActivity : ComponentActivity() {
                             composable<AddAddress>{
                                 showBottomBar.value=false
                                 AddAddressScreen(navController)
+                            }
+                            composable<OrderSuccess>{
+                                showBottomBar.value=false
+                                val orderId=it.toRoute<OrderSuccess>().orderId
+                                OrderSuccessScreen(navController = navController, orderId = orderId)
+
                             }
                         }
                     }
