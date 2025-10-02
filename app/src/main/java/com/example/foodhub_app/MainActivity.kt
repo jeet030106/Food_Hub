@@ -57,6 +57,7 @@ import com.example.foodhub_app.ui.feature.cart.CartScreenViewModel
 import com.example.foodhub_app.ui.feature.food_item_details.FoodDetailsScreen
 import com.example.foodhub_app.ui.feature.home.HomeScreen
 import com.example.foodhub_app.ui.feature.order_success.OrderSuccessScreen
+import com.example.foodhub_app.ui.feature.orders.OrderListScreen
 import com.example.foodhub_app.ui.feature.restaurant_details.RestaurantDetailScreen
 import com.example.foodhub_app.ui.navigation.AddAddress
 import com.example.foodhub_app.ui.navigation.AddressList
@@ -66,6 +67,7 @@ import com.example.foodhub_app.ui.navigation.FoodDetails
 import com.example.foodhub_app.ui.navigation.Home
 import com.example.foodhub_app.ui.navigation.Login
 import com.example.foodhub_app.ui.navigation.Notification
+import com.example.foodhub_app.ui.navigation.OrderList
 import com.example.foodhub_app.ui.navigation.OrderSuccess
 import com.example.foodhub_app.ui.navigation.RestaurantDetail
 import com.example.foodhub_app.ui.navigation.SignUp
@@ -73,6 +75,7 @@ import com.example.foodhub_app.ui.navigation.foodItemNavType
 import com.example.foodhub_app.ui.navigation.navRoutes
 import com.example.foodhub_app.ui.theme.CustomNavHost
 import com.example.foodhub_app.ui.theme.FoodHub_AppTheme
+import com.example.foodhub_app.ui.theme.Primary
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -93,6 +96,7 @@ class MainActivity : ComponentActivity() {
         object Home:BottomNavItems(com.example.foodhub_app.ui.navigation.Home,R.drawable.ic_home)
         object Cart:BottomNavItems(com.example.foodhub_app.ui.navigation.Cart,R.drawable.ic_cart)
         object Notification:BottomNavItems(com.example.foodhub_app.ui.navigation.Notification,R.drawable.ic_notification)
+        object OrderList:BottomNavItems(com.example.foodhub_app.ui.navigation.OrderList,R.drawable.ic_order)
     }
 
 
@@ -121,7 +125,7 @@ class MainActivity : ComponentActivity() {
                 val showBottomBar=remember{
                     mutableStateOf(false)
                 }
-                val  navItems=listOf(BottomNavItems.Home,BottomNavItems.Cart,BottomNavItems.Notification)
+                val  navItems=listOf(BottomNavItems.Home,BottomNavItems.Cart,BottomNavItems.Notification,BottomNavItems.OrderList)
                 val cartViewModel: CartScreenViewModel= hiltViewModel()
                 val navController = rememberNavController()
                 val itemCount=cartViewModel.itemCount.collectAsStateWithLifecycle()
@@ -139,7 +143,7 @@ class MainActivity : ComponentActivity() {
                                         icon={
                                             Box(modifier = Modifier.size(48.dp)){
                                                 Icon(painter = painterResource(id = item.icon), contentDescription = null,
-                                                    tint = if (selected) MaterialTheme.colorScheme.primary else Color.Gray,
+                                                    tint = if (selected) Primary else Color.Gray,
                                                     modifier = Modifier.align(Alignment.Center))
 
                                                 if(item.routes==Cart && itemCount.value>0){
@@ -233,6 +237,10 @@ class MainActivity : ComponentActivity() {
                                 val orderId=it.toRoute<OrderSuccess>().orderId
                                 OrderSuccessScreen(navController = navController, orderId = orderId)
 
+                            }
+                            composable<OrderList>{
+                                showBottomBar.value=true
+                                OrderListScreen(navController)
                             }
                         }
                     }

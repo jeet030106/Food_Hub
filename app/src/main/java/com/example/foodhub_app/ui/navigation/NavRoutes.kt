@@ -38,3 +38,7 @@ object AddAddress :navRoutes
 @Serializable
 data class OrderSuccess(val orderId:String): navRoutes
 
+@Serializable
+object OrderList:navRoutes
+
+

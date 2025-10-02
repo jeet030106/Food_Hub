@@ -12,6 +12,7 @@ import com.example.foodhub_app.data.model.ConfirmPaymentResponse
 import com.example.foodhub_app.data.model.FoodItemResponse
 import com.example.foodhub_app.data.model.GenericResponse
 import com.example.foodhub_app.data.model.OAuthRequest
+import com.example.foodhub_app.data.model.OrderListResponse
 import com.example.foodhub_app.data.model.PaymentIntentRequest
 import com.example.foodhub_app.data.model.PaymentIntentResponse
 import com.example.foodhub_app.data.model.RestaurantsResponse
@@ -73,7 +74,8 @@ interface FoodApi {
         @Path("paymentIntentId") paymentIntentId: String
     ): Response<ConfirmPaymentResponse>
 
-
+    @GET("/orders")
+    suspend fun getOrders():Response<OrderListResponse>
 
 
 }
