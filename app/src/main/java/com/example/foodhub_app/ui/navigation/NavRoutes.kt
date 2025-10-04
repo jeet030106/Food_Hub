@@ -41,4 +41,6 @@ data class OrderSuccess(val orderId:String): navRoutes
 @Serializable
 object OrderList:navRoutes
 
+@Serializable
+data class OrderDetail(val orderId:String):navRoutes
 

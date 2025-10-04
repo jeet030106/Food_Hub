@@ -36,6 +36,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -57,16 +58,30 @@ import com.example.foodhub_app.ui.theme.Primary
 import kotlinx.coroutines.launch
 import java.util.Collections.list
 import com.example.foodhub_app.R
+import com.example.foodhub_app.ui.navigation.OrderDetail
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun OrderListScreen(navController: NavController,viewModel: OrderListViewModel=hiltViewModel()) {
+    LaunchedEffect(key1=true) {
+        viewModel.events.collectLatest {
+            when(it){
+                is OrderListViewModel.OrderEvents.NavigateToBack->{
+                    navController.popBackStack()
+                }
+                is OrderListViewModel.OrderEvents.NavigateToDetail->{
+                    navController.navigate(OrderDetail(it.order.id))
+                }
+            }
+        }
+    }
     Column (modifier = Modifier.fillMaxSize().padding(16.dp),horizontalAlignment = Alignment.CenterHorizontally){
         Row(
             modifier = Modifier.fillMaxWidth().padding( 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ){
-            Image(painter = painterResource(id = R.drawable.back_button), contentDescription = "Back",modifier = Modifier.size(36.dp).shadow(elevation = 4.dp,clip = true,shape = CircleShape).clip(CircleShape).clickable{viewModel.navigateToBack()})
+            Image(painter = painterResource(id = R.drawable.back_button), contentDescription = "Back",modifier = Modifier.size(36.dp).clip(CircleShape).clickable{viewModel.navigateToBack()})
             Text(text="Orders",style=MaterialTheme.typography.titleLarge)
             Spacer(modifier = Modifier.size(48.dp))
         }
@@ -228,7 +243,7 @@ fun OrderListItem(order: Order,onCLick:()->Unit){
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(
-                    onClick = { },
+                    onClick = {onCLick() },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Primary,
                         contentColor = Color.White
