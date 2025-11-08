@@ -38,6 +38,7 @@ import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -78,16 +79,19 @@ import com.example.foodhub_app.ui.navigation.navRoutes
 import com.example.foodhub_app.ui.theme.CustomNavHost
 import com.example.foodhub_app.ui.theme.FoodHub_AppTheme
 import com.example.foodhub_app.ui.theme.Primary
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.reflect.typeOf
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
     var splashScreen=true
     @Inject
     lateinit var foodApi: FoodApi
@@ -104,6 +108,14 @@ class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalSharedTransitionApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        lifecycleScope.launchWhenStarted {
+            try {
+                val token = FirebaseMessaging.getInstance().token.await() // using kotlinx-coroutines-play-services or similar helper
+                Log.d("FCM_TEST", "Token: $token")
+            } catch (e: Exception) {
+                Log.w("FCM_TEST", "Token fetch failed", e)
+            }
+        }
         installSplashScreen().apply {
             setKeepOnScreenCondition { splashScreen }
             setOnExitAnimationListener { splashScreenView ->

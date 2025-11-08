@@ -9,6 +9,7 @@ import com.example.foodhub_app.data.model.CartResponse
 import com.example.foodhub_app.data.model.CategoriesResponse
 import com.example.foodhub_app.data.model.ConfirmPaymentRequest
 import com.example.foodhub_app.data.model.ConfirmPaymentResponse
+import com.example.foodhub_app.data.model.FCMRequest
 import com.example.foodhub_app.data.model.FoodItemResponse
 import com.example.foodhub_app.data.model.GenericResponse
 import com.example.foodhub_app.data.model.OAuthRequest
@@ -27,6 +28,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -80,5 +82,8 @@ interface FoodApi {
 
     @GET("/orders/{orderId}")
     suspend fun getOrderDetails(@Path("orderId") orderId: String):Response<Order>
+
+    @PUT("/notifications/fcm-token")
+    suspend fun updateToken(@Body request: FCMRequest):Response<GenericResponse>
 
 }
