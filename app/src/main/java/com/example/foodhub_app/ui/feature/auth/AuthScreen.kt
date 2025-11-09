@@ -55,7 +55,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class) // <-- Add this annotation
 @Composable
-fun AuthScreen(navController: NavController,viewModel: AuthViewModel = hiltViewModel()){
+fun AuthScreen(navController: NavController,isCustomer:Boolean=true,viewModel: AuthViewModel = hiltViewModel()){
     val sheetState= rememberModalBottomSheetState()
     val scope= rememberCoroutineScope()
     var showDialog by remember{mutableStateOf(false)}
@@ -144,18 +144,20 @@ fun AuthScreen(navController: NavController,viewModel: AuthViewModel = hiltViewM
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Bottom
         ){
-            GroupSocialIcons(color = Color.White,viewModel = viewModel)
-            Spacer(modifier = Modifier.size(10.dp))
-            Button(
-                onClick = {
-                    navController.navigate(SignUp)
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray.copy(alpha = 0.5f)),
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(32.dp),
-                border = BorderStroke(1.dp, Color.White)
-            ) {
-                Text(text = stringResource(id = R.string.signIn), color = Color.White)
+            if(isCustomer){
+                GroupSocialIcons(color = Color.White,viewModel = viewModel)
+                Spacer(modifier = Modifier.size(10.dp))
+                Button(
+                    onClick = {
+                        navController.navigate(SignUp)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Gray.copy(alpha = 0.5f)),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(32.dp),
+                    border = BorderStroke(1.dp, Color.White)
+                ) {
+                    Text(text = stringResource(id = R.string.signIn), color = Color.White)
+                }
             }
             Spacer(modifier = Modifier.size(10.dp))
             TextButton(onClick = {

@@ -83,7 +83,7 @@ fun CartScreen(navController: NavController, viewModel: CartScreenViewModel) {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             val current = navController.currentBackStackEntry?.destination?.route ?: "null"
             val previous = navController.previousBackStackEntry?.destination?.route ?: "null"
-            android.util.Log.d("NavStack", "Current route: $current, Previous route: $previous")
+            Log.d("NavStack", "Current route: $current, Previous route: $previous")
         }
     }
 

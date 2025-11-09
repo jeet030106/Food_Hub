@@ -1,8 +1,8 @@
 package com.example.foodhub_app.ui.feature.add_address
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.widget.Button
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -46,7 +45,6 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filter
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
@@ -164,13 +162,13 @@ fun AddAddressScreen(
 @Composable
 fun RequestPermission(onPermissionGranted:()->Unit,onPermissionDenied:()->Unit){
     val context=LocalContext.current
-    if(context.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED){
+    if(context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED){
         onPermissionGranted()
         return
     }
     val permission=listOf(
-        android.Manifest.permission.ACCESS_FINE_LOCATION,
-        android.Manifest.permission.ACCESS_COARSE_LOCATION
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
     )
     val permissionLauncher= rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestMultiplePermissions()) {
         if(it.all { it.value }){

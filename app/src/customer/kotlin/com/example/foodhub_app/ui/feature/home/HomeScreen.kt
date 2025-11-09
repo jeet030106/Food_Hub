@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -136,7 +137,7 @@ fun SharedTransitionScope.RestaurantList(restaurants:List<Restaurants>,animatedV
             horizontalArrangement = Arrangement.Center
         ){
             Text(text = "Popular Restaurants",
-                style = androidx.compose.ui.text.TextStyle(
+                style = TextStyle(
                     fontSize = 24.sp,
                     textAlign = TextAlign.Center
                 ),
@@ -144,7 +145,7 @@ fun SharedTransitionScope.RestaurantList(restaurants:List<Restaurants>,animatedV
             )
             TextButton(onClick = { }) {
                 Text(text = "View All",
-                    style = androidx.compose.ui.text.TextStyle(
+                    style = TextStyle(
                         fontSize = 16.sp,
                         textAlign = TextAlign.Center
                     ),
@@ -202,7 +203,7 @@ fun SharedTransitionScope.RestaurantItem(restaurants: Restaurants, onRestaurantS
                 ) {
                     Text(
                         text = "4.5",
-                        style = androidx.compose.ui.text.TextStyle(
+                        style = TextStyle(
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         ),
@@ -218,7 +219,7 @@ fun SharedTransitionScope.RestaurantItem(restaurants: Restaurants, onRestaurantS
                     )
                     Text(
                         text = "(25+)",
-                        style = androidx.compose.ui.text.TextStyle(
+                        style = TextStyle(
                             fontSize = 12.sp
                         ),
                         color = Color.Black.copy(alpha = 0.8f),
@@ -239,7 +240,7 @@ fun SharedTransitionScope.RestaurantItem(restaurants: Restaurants, onRestaurantS
                 Column {
                     Text(
                         text = restaurants.name,
-                        style = androidx.compose.ui.text.TextStyle(
+                        style = TextStyle(
                             fontSize = 16.sp,
                             textAlign = TextAlign.Center,
                             fontWeight = FontWeight.Bold
@@ -323,7 +324,7 @@ fun CategoryItem(category:Category,onCategorySelected:(Category)->Unit){
         )
         Spacer(modifier = Modifier.size(8.dp))
         Text(text = category.name,
-            style = androidx.compose.ui.text.TextStyle(
+            style = TextStyle(
                 fontSize = 12.sp,
                 textAlign = TextAlign.Center
             )
