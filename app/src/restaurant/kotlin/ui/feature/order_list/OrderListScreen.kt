@@ -29,6 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.foodhub_app.data.model.Order
+import com.example.foodhub_app.ui.navigation.OrderDetail
 import com.example.foodhub_app.ui.theme.Primary
 import kotlinx.coroutines.launch
 
@@ -79,7 +80,7 @@ fun OrderListScreen(navController: NavController,viewModel: OrderListViewModel= 
                         LazyColumn{
                             items(orders){order->
                                 OrderListItem(order){
-
+                                    navController.navigate(OrderDetail(orderId = order.id))
                                 }
                             }
                         }
@@ -99,6 +100,7 @@ fun OrderListItem(order: Order, onOrderClick:()->Unit){
         .padding(8.dp)
         .clip(RoundedCornerShape(12.dp))
         .padding(4.dp)
+        .clickable(onClick = onOrderClick)
         .background(color = Primary.copy(alpha = 0.1f))
     ){
         Text(text = order.id)

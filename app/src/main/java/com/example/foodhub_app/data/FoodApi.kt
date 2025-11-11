@@ -93,4 +93,10 @@ interface FoodApi {
 
     @GET("/restaurant-owner/orders")
     suspend fun getOrderTypes(@Query ("status") status:String) : Response<OrderListResponse>
+
+    @PATCH("/orders/{orderId}/status")
+    suspend fun updateOrderStatus(
+        @Path("orderId") orderId: String,
+        @Body map: Map<String, String>
+    ):Response<GenericResponse>
 }

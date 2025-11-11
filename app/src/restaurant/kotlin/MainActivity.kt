@@ -42,6 +42,7 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 
 import com.example.foodhub_app.data.FoodApi
 import com.example.foodhub_app.data.FoodHubSession
@@ -73,7 +74,9 @@ import javax.inject.Inject
 import kotlin.reflect.typeOf
 import com.example.foodhub_app.R
 import com.example.foodhub_app.ui.feature.home.HomeScreen
+import com.example.foodhub_app.ui.feature.order_details.OrderDetailsScreen
 import com.example.foodhub_app.ui.feature.order_list.OrderListScreen
+import com.example.foodhub_app.ui.navigation.OrderDetail
 import com.example.foodhub_app.ui.navigation.OrderList
 
 @AndroidEntryPoint
@@ -186,6 +189,11 @@ class MainActivity : ComponentActivity() {
                             composable<OrderList>{
                                 showBottomBar.value=true
                                 OrderListScreen(navController)
+                            }
+                            composable<OrderDetail> {
+                                showBottomBar.value=true
+                                val orderId=it.toRoute<OrderDetail>().orderId
+                                OrderDetailsScreen(navController,orderId)
                             }
                         }
                     }
