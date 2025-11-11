@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.foodhub_app.data.location.LocationManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.stripe.android.customersheet.injection.CustomerSheetViewModelModule_Companion_ContextFactory.context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,11 +21,12 @@ import retrofit2.converter.gson.GsonConverterFactory
 object NetworkModule {
 
     @Provides
-    fun provideClient(session: FoodHubSession):OkHttpClient{
+    fun provideClient(session: FoodHubSession,@ApplicationContext context: Context):OkHttpClient{
         val client=OkHttpClient.Builder()
         client.addInterceptor {chain->
             val request=chain.request().newBuilder()
                 .addHeader("Authorization","Bearer ${session.getToken()}")
+                .addHeader("X-Package-Name",context.packageName)
                 .build()
                 chain.proceed(request)
             }

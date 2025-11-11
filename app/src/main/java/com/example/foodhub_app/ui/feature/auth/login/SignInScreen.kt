@@ -66,7 +66,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignInScreen(navController: NavController,viewModel: SignInViewModel= hiltViewModel()){
+fun SignInScreen(navController: NavController,isCustomer:Boolean=true,viewModel: SignInViewModel= hiltViewModel()){
     val sheetState= rememberModalBottomSheetState()
     val scope= rememberCoroutineScope()
     var showDialog by remember{mutableStateOf(false)}
@@ -210,10 +210,12 @@ fun SignInScreen(navController: NavController,viewModel: SignInViewModel= hiltVi
                 )
                 Spacer(modifier = Modifier.size(48.dp))
                 val context=LocalContext.current
-                GroupSocialIcons(
-                    color = Color.Gray,
-                    viewModel = viewModel
-                )
+                if(isCustomer){
+                    GroupSocialIcons(
+                        color = Color.Gray,
+                        viewModel = viewModel
+                    )
+                }
                 Spacer(modifier = Modifier.size(16.dp))
             }
         }

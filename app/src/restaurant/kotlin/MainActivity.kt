@@ -72,6 +72,8 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.reflect.typeOf
 import com.example.foodhub_app.R
+import com.example.foodhub_app.ui.feature.home.HomeScreen
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -169,14 +171,11 @@ class MainActivity : ComponentActivity() {
                             }
                             composable<Login> {
                                 showBottomBar.value=false
-                                SignInScreen(navController)
+                                SignInScreen(navController,false)
                             }
                             composable<Home> {
                                 showBottomBar.value=true
-                                RestaurantHomeScreen(
-                                    navController,
-                                    this as Context
-                                )
+                                HomeScreen(navController)
                             }
 
                             composable<Notification>{
@@ -197,9 +196,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-@Composable
-fun RestaurantHomeScreen(navController: NavController, context: Context) {
-    Box(){
-        Text("Home")
-    }
-}
+

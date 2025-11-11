@@ -17,6 +17,7 @@ import com.example.foodhub_app.data.model.Order
 import com.example.foodhub_app.data.model.OrderListResponse
 import com.example.foodhub_app.data.model.PaymentIntentRequest
 import com.example.foodhub_app.data.model.PaymentIntentResponse
+import com.example.foodhub_app.data.model.Restaurants
 import com.example.foodhub_app.data.model.RestaurantsResponse
 import com.example.foodhub_app.data.model.ReverseGeocodeRequest
 import com.example.foodhub_app.data.model.SignInRequest
@@ -86,4 +87,7 @@ interface FoodApi {
     @PUT("/notifications/fcm-token")
     suspend fun updateToken(@Body request: FCMRequest):Response<GenericResponse>
 
+    //Restaurant
+    @GET("/restaurant-owner/profile")
+    suspend fun getRestaurantProfile():Response<Restaurants>
 }
