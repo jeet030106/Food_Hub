@@ -90,4 +90,7 @@ interface FoodApi {
     //Restaurant
     @GET("/restaurant-owner/profile")
     suspend fun getRestaurantProfile():Response<Restaurants>
+
+    @GET("/restaurant-owner/orders")
+    suspend fun getOrderTypes(@Query ("status") status:String) : Response<OrderListResponse>
 }

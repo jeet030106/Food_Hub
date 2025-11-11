@@ -73,6 +73,8 @@ import javax.inject.Inject
 import kotlin.reflect.typeOf
 import com.example.foodhub_app.R
 import com.example.foodhub_app.ui.feature.home.HomeScreen
+import com.example.foodhub_app.ui.feature.order_list.OrderListScreen
+import com.example.foodhub_app.ui.navigation.OrderList
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -181,7 +183,10 @@ class MainActivity : ComponentActivity() {
                             composable<Notification>{
                                 showBottomBar.value=true
                             }
-
+                            composable<OrderList>{
+                                showBottomBar.value=true
+                                OrderListScreen(navController)
+                            }
                         }
                     }
                 }
