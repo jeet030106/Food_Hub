@@ -16,4 +16,14 @@ class FoodHubSession(context: Context) {
         }
         return null
     }
+
+    fun storeRestaurantId(restaurantId:String){
+        sharedPres.edit().putString("restaurantId",restaurantId).apply()
+    }
+    fun getRestaurantId():String?{
+        sharedPres.getString("restaurantId",null)?.let{
+            return it
+        }
+        return null
+    }
 }

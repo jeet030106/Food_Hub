@@ -10,6 +10,7 @@ import com.example.foodhub_app.data.model.CategoriesResponse
 import com.example.foodhub_app.data.model.ConfirmPaymentRequest
 import com.example.foodhub_app.data.model.ConfirmPaymentResponse
 import com.example.foodhub_app.data.model.FCMRequest
+import com.example.foodhub_app.data.model.FoodItemListResponse
 import com.example.foodhub_app.data.model.FoodItemResponse
 import com.example.foodhub_app.data.model.GenericResponse
 import com.example.foodhub_app.data.model.OAuthRequest
@@ -99,4 +100,7 @@ interface FoodApi {
         @Path("orderId") orderId: String,
         @Body map: Map<String, String>
     ):Response<GenericResponse>
+
+    @GET("/restaurants/{id}/menu")
+    suspend fun getRestaurantMenu(@Path("id") id: String):Response<FoodItemListResponse>
 }

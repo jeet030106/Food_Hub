@@ -74,8 +74,10 @@ import javax.inject.Inject
 import kotlin.reflect.typeOf
 import com.example.foodhub_app.R
 import com.example.foodhub_app.ui.feature.home.HomeScreen
+import com.example.foodhub_app.ui.feature.menu.list.ListMenuItemScreen
 import com.example.foodhub_app.ui.feature.order_details.OrderDetailsScreen
 import com.example.foodhub_app.ui.feature.order_list.OrderListScreen
+import com.example.foodhub_app.ui.navigation.MenuList
 import com.example.foodhub_app.ui.navigation.OrderDetail
 import com.example.foodhub_app.ui.navigation.OrderList
 
@@ -92,6 +94,7 @@ class MainActivity : ComponentActivity() {
         object Home:BottomNavItems(com.example.foodhub_app.ui.navigation.Home,R.drawable.ic_home)
         object Notification:BottomNavItems(com.example.foodhub_app.ui.navigation.Notification,R.drawable.ic_notification)
         object OrderList:BottomNavItems(com.example.foodhub_app.ui.navigation.OrderList,R.drawable.ic_order)
+        object MenuList:BottomNavItems(com.example.foodhub_app.ui.navigation.MenuList,R.drawable.ic_cart)
     }
 
 
@@ -128,7 +131,7 @@ class MainActivity : ComponentActivity() {
                 val showBottomBar=remember{
                     mutableStateOf(false)
                 }
-                val  navItems=listOf(BottomNavItems.Home,BottomNavItems.Notification,BottomNavItems.OrderList)
+                val  navItems=listOf(BottomNavItems.Home,BottomNavItems.Notification,BottomNavItems.OrderList,BottomNavItems.MenuList)
                 val navController = rememberNavController()
                 Scaffold(modifier = Modifier.fillMaxSize(),
 
@@ -194,6 +197,10 @@ class MainActivity : ComponentActivity() {
                                 showBottomBar.value=true
                                 val orderId=it.toRoute<OrderDetail>().orderId
                                 OrderDetailsScreen(navController,orderId)
+                            }
+                            composable<MenuList>{
+                                showBottomBar.value=true
+                                ListMenuItemScreen(navController,this)
                             }
                         }
                     }
