@@ -92,7 +92,6 @@ class MainActivity : ComponentActivity() {
 
     sealed class BottomNavItems(val routes: navRoutes,val icon:Int){
         object Home:BottomNavItems(com.example.foodhub_app.ui.navigation.Home,R.drawable.ic_home)
-        object Notification:BottomNavItems(com.example.foodhub_app.ui.navigation.Notification,R.drawable.ic_notification)
         object OrderList:BottomNavItems(com.example.foodhub_app.ui.navigation.OrderList,R.drawable.ic_order)
         object MenuList:BottomNavItems(com.example.foodhub_app.ui.navigation.MenuList,R.drawable.ic_cart)
     }
@@ -131,7 +130,7 @@ class MainActivity : ComponentActivity() {
                 val showBottomBar=remember{
                     mutableStateOf(false)
                 }
-                val  navItems=listOf(BottomNavItems.Home,BottomNavItems.Notification,BottomNavItems.OrderList,BottomNavItems.MenuList)
+                val  navItems=listOf(BottomNavItems.Home,BottomNavItems.OrderList,BottomNavItems.MenuList)
                 val navController = rememberNavController()
                 Scaffold(modifier = Modifier.fillMaxSize(),
 
