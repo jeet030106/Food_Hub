@@ -31,10 +31,20 @@ class CartScreenViewModel @Inject constructor(private val foodApi: FoodApi) : Vi
     private var cartResponse: CartResponse? = null
 
     private var paymentIntent: PaymentIntentResponse? = null
-    private val addressID = "85a9c641-f6bd-4362-8692-e5fb9452c44a"
+    private val addressID = "1b8d3504-249a-4b19-85cf-7c851378d7c4"
 
     init {
         getCart()
+        getaddresses()
+    }
+
+    fun getaddresses(){
+        viewModelScope.launch {
+            val response = safeApiCall {
+                foodApi.getAddresses()
+            }
+            Log.d("Address", response.toString())
+        }
     }
 
     fun getCart() {

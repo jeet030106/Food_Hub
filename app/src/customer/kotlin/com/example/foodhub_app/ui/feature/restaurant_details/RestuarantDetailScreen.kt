@@ -10,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -28,11 +29,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +46,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -55,103 +59,145 @@ import com.example.foodhub_app.ui.theme.Primary
 @Composable
 fun SharedTransitionScope.RestaurantDetailScreen(
     navController: NavController,
-    name:String,
-    imageUrl:String,
-    restaurantId:String,
+    name: String,
+    imageUrl: String,
+    restaurantId: String,
     animatedVisibilityScope: AnimatedVisibilityScope,
     viewModel: RestaurantViewModel = hiltViewModel()
-
-){
+) {
     LaunchedEffect(restaurantId) {
         viewModel.getFoodItems(restaurantId)
     }
-    val uiState=viewModel.uiState.collectAsState()
-    LazyColumn (
-        modifier = Modifier.padding(top=32.dp)
-    ){
+
+    val uiState by viewModel.uiState.collectAsState()
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF8F9FA)),
+        contentPadding = PaddingValues(bottom = 24.dp)
+    ) {
+        // 🔹 Restaurant Cover Image Header
         item {
             RestaurantHeader(
-                imageUrl,
+                imageUrl = imageUrl,
                 onFavouriteButton = {},
-                animatedVisibilityScope =  animatedVisibilityScope,
-                restaurantId = restaurantId
-            ) { navController.popBackStack() }
+                animatedVisibilityScope = animatedVisibilityScope,
+                restaurantId = restaurantId,
+                onBackButton = { navController.popBackStack() }
+            )
         }
-        item{
-            RestaurantDetail(name = name,description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.")
+
+        // 🔹 Restaurant Description & Details
+        item {
+            RestaurantDetail(
+                name = name,
+                description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+            )
         }
-        when(uiState.value){
-            is RestaurantViewModel.RestaurantEvent.Loading->{
-                item{
+
+        // 🔹 Menu Items Section State Handling
+        when (val state = uiState) {
+            is RestaurantViewModel.RestaurantEvent.Loading -> {
+                item {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier=Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
-                    ){
-                        CircularProgressIndicator()
-                        Text(text="Loading")
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 40.dp)
+                    ) {
+                        CircularProgressIndicator(color = Primary)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Loading Menu...",
+                            color = Color.Gray,
+                            fontSize = 14.sp
+                        )
                     }
                 }
             }
-            is RestaurantViewModel.RestaurantEvent.Error->{
-                item{
-                    Text(text="Error")
-                }
-            }
-            is RestaurantViewModel.RestaurantEvent.Success->{
-                val foodItem=
-                    (uiState.value as RestaurantViewModel.RestaurantEvent.Success).foodItem
-                items(foodItem){
-                    FoodItems(it,animatedVisibilityScope){
-                        navController.navigate(FoodDetails(it))
+            is RestaurantViewModel.RestaurantEvent.Error -> {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Failed to load menu items",
+                            color = Color.Red,
+                            fontSize = 14.sp
+                        )
                     }
                 }
             }
-            is RestaurantViewModel.RestaurantEvent.Nothing->{
-
+            is RestaurantViewModel.RestaurantEvent.Success -> {
+                items(state.foodItem, key = { it.id!! }) { item ->
+                    FoodItems(
+                        foodItem = item,
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        onClick = { navController.navigate(FoodDetails(it)) }
+                    )
+                }
             }
+            is RestaurantViewModel.RestaurantEvent.Nothing -> {}
         }
     }
 }
 
-
-
+// 🔹 Enhanced Food Item Card (Primary-Themed Border & Price Badge)
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun SharedTransitionScope.FoodItems(foodItem: FoodItem,animatedVisibilityScope: AnimatedVisibilityScope,onClick:(FoodItem)->Unit) {
-    Box(
+fun SharedTransitionScope.FoodItems(
+    foodItem: FoodItem,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    onClick: (FoodItem) -> Unit
+) {
+    Surface(
         modifier = Modifier
-            .padding(12.dp)
             .fillMaxWidth()
-            .height(128.dp)
-            .shadow(elevation = 4.dp, shape = RoundedCornerShape(16.dp))
-            .background(Color.White, shape = RoundedCornerShape(16.dp))
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .shadow(
+                elevation = 4.dp,
+                shape = RoundedCornerShape(16.dp),
+                spotColor = Color.Black.copy(alpha = 0.08f)
+            )
+            .clip(RoundedCornerShape(16.dp))
             .border(
-                color = MaterialTheme.colorScheme.primary,
                 width = 1.dp,
+                color = Primary.copy(alpha = 0.3f),
                 shape = RoundedCornerShape(16.dp)
             )
-            .clickable{onClick.invoke(foodItem)}
-            .sharedElement(state=rememberSharedContentState(key="image/${foodItem.id}"),animatedVisibilityScope)
-            .padding(8.dp)
+            .clickable { onClick(foodItem) },
+        color = Color.White
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // This is the Box for the Image and Favorite Icon
+            // 🔹 Food Thumbnail Image Container
             Box(
                 modifier = Modifier
-                    .size(96.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp))
+                    .size(88.dp)
+                    .clip(RoundedCornerShape(12.dp))
             ) {
                 AsyncImage(
                     model = foodItem.imageUrl,
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
+                    contentDescription = foodItem.name,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .sharedElement(
+                            state = rememberSharedContentState(key = "image/${foodItem.id}"),
+                            animatedVisibilityScope = animatedVisibilityScope
+                        ),
                     contentScale = ContentScale.Crop
                 )
+
+                // Original Floating Favorite Button Overlay on Item Image
                 IconButton(
                     onClick = { /* Handle favorite click */ },
                     modifier = Modifier
@@ -161,102 +207,142 @@ fun SharedTransitionScope.FoodItems(foodItem: FoodItem,animatedVisibilityScope: 
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.favourite_icon),
-                        contentDescription = "Favorite",
+                        contentDescription = "Favorite"
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.size(8.dp))
+            Spacer(modifier = Modifier.width(12.dp))
 
-            // ⭐ START OF CHANGES: Main container for all text
+            // 🔹 Food Title, Price, & Description Layout
             Column(
-                modifier = Modifier.fillMaxHeight(),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
                 verticalArrangement = Arrangement.Center
             ) {
-                // 1. Create a Row for the name and price
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween // Pushes items to ends
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     // Item Name
                     Text(
                         text = foodItem.name,
-                        style = MaterialTheme.typography.bodyLarge,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1F2937),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f) // Takes up available space
+                        modifier = Modifier.weight(1f)
                     )
 
-                    // Price Box (MOVED HERE)
-                    Box(
-                        modifier = Modifier
-                            .padding(end = 8.dp)
-                            .height(32.dp)
-                            .width(64.dp)
-                            .border(
-                                width = 1.dp,
-                                color = MaterialTheme.colorScheme.primary,
-                                shape = RoundedCornerShape(8.dp)
-                            )
+                    Spacer(modifier = Modifier.width(6.dp))
+
+                    // 🔹 Primary-Themed Price Badge
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = Primary.copy(alpha = 0.12f),
+                        border = androidx.compose.foundation.BorderStroke(
+                            width = 1.dp,
+                            color = Primary.copy(alpha = 0.5f)
+                        )
                     ) {
                         Text(
                             text = "$${foodItem.price}",
-                            color = Color.Black,
-                            style = MaterialTheme.typography.bodySmall,
+                            color = Primary,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            modifier = Modifier.align(Alignment.Center)
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.size(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-                // 2. Description is placed below the Row
+                // Item Description
                 Text(
                     text = foodItem.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 2, // Prevents overlapping if description is long
-                    overflow = TextOverflow.Ellipsis
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 16.sp
                 )
             }
         }
     }
 }
+
+// 🔹 Restaurant Details Section
 @Composable
 fun RestaurantDetail(
-    name:String,
-    description:String
-){
+    name: String,
+    description: String
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(horizontal = 20.dp, vertical = 14.dp)
     ) {
-        Text(text=name,style = MaterialTheme.typography.titleLarge)
-        Spacer(modifier = Modifier.size(8.dp))
-        Row(verticalAlignment = Alignment.CenterVertically){
-           Icon(imageVector = Icons.Filled.Star, contentDescription = null,modifier = Modifier.size(32.dp),
-               tint = Primary
-           )
-            Spacer(modifier = Modifier.size(4.dp))
-            Text(text="4.5",style = MaterialTheme.typography.bodyMedium, modifier = Modifier.align(
-                Alignment.CenterVertically))
-            Spacer(modifier = Modifier.size(4.dp))
-            Text(text="(30+)",style = MaterialTheme.typography.bodyMedium, modifier = Modifier.align(
-                Alignment.CenterVertically))
-            Spacer(modifier = Modifier.size(8.dp))
-            TextButton(onClick = {}) {
-                Text(text="View all reviews",style = MaterialTheme.typography.bodyMedium,color=MaterialTheme.colorScheme.primary)
+        Text(
+            text = name,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF1F2937)
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        // Rating & Review Link Row
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Star,
+                contentDescription = "Rating Star",
+                modifier = Modifier.size(20.dp),
+                tint = Color(0xFFFFC107)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "4.5",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF1F2937)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = "(30+)",
+                fontSize = 13.sp,
+                color = Color.Gray
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            TextButton(
+                onClick = {},
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Text(
+                    text = "View all reviews",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Primary
+                )
             }
         }
-        Spacer(modifier = Modifier.size(8.dp))
-        Text(text=description,style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(8.dp))
-    }
 
+        Spacer(modifier = Modifier.height(6.dp))
+
+        Text(
+            text = description,
+            fontSize = 13.sp,
+            color = Color(0xFF4B5563),
+            lineHeight = 18.sp
+        )
+    }
 }
 
+// 🔹 Header with Original Back & Favorite Button Styles Restored
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SharedTransitionScope.RestaurantHeader(
@@ -264,30 +350,48 @@ fun SharedTransitionScope.RestaurantHeader(
     onFavouriteButton: () -> Unit,
     animatedVisibilityScope: AnimatedVisibilityScope,
     restaurantId: String?,
-    onBackButton: () -> Unit,
-){
-    Box(modifier= Modifier.fillMaxWidth()){
-        AsyncImage(model=imageUrl, contentDescription = null,
+    onBackButton: () -> Unit
+) {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        AsyncImage(
+            model = imageUrl,
+            contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
-                .sharedElement(state = rememberSharedContentState(key="image/${restaurantId}"),animatedVisibilityScope),
-            contentScale = ContentScale.Crop        )
-        IconButton(onClick =onBackButton,
+                .sharedElement(
+                    state = rememberSharedContentState(key = "image/${restaurantId}"),
+                    animatedVisibilityScope = animatedVisibilityScope
+                ),
+            contentScale = ContentScale.Crop
+        )
+
+        // Original Floating Back Button
+        IconButton(
+            onClick = onBackButton,
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(8.dp)
                 .size(56.dp)
-        ){
-            Image(painter = painterResource(id = R.drawable.back_button), contentDescription = null)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.back_button),
+                contentDescription = "Back"
+            )
         }
-        IconButton(onClick =onFavouriteButton,
+
+        // Original Floating Favorite Button
+        IconButton(
+            onClick = onFavouriteButton,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(8.dp)
                 .size(56.dp)
-        ){
-            Image(painter = painterResource(id = R.drawable.favourite_icon), contentDescription = null)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.favourite_icon),
+                contentDescription = "Favorite"
+            )
         }
     }
 }
